@@ -3,8 +3,8 @@
 //#include "add.h"
 #include <vector>
 #include <ostream>
-#include "Utility/split.h"
-#include "Utility/tostring.h"
+#include "split.h"
+#include "tostring.h"
 
 /*
 	This version of Tensor uses a std::vector<T> as the storage class.

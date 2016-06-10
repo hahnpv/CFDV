@@ -1,10 +1,10 @@
 #pragma once
 
-#include "FDV/Element.h"
-#include "FDV/Thermo.h"
-#include "Utility/split.h"
-#include "Utility/tostring.h"
-#include "Utility/dictionary.h"
+#include "../../FDV/Element.h"
+#include "../../FDV/Thermo.h"
+#include "../split.h"
+#include "../tostring.h"
+#include "../dictionary.h"
 
 #include <iostream>
 #include <fstream>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Utility/Tensor.h"
-#include "FDV/Node.h"
+#include "../Utility/Tensor.h"
+#include "../FDV/Node.h"
 
 	// test function, 2d
 struct testfunction : public Tensor<double, 1> // Matrix1d

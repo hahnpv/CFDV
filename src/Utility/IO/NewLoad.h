@@ -10,11 +10,11 @@
 // adap		- adaptive meshing data, if needed, put adap flag in control.
 
 #include "Load.h"
-#include "FDV/Thermo.h"
-#include "FDV/Element.h"
-#include "Utility/split.h"
-#include "Utility/tostring.h"
-#include "Utility/dictionary.h"
+#include "../../FDV/Thermo.h"
+#include "../../FDV/Element.h"
+#include "../split.h"
+#include "../tostring.h"
+#include "../dictionary.h"
 
 	/// Load from file a CFD solution
 	/// Restoring from save WORKS except when restoring after first refine going into second refine

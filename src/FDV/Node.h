@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/Tensor.h"
+#include "../Utility/Tensor.h"
 
 	// struct for the values at each node in an element
 	// think about implementing inheritance, a base node class

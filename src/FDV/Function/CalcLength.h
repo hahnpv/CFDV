@@ -3,16 +3,16 @@
 #include <iostream>
 using namespace std;
 
-#include "FiniteElement/get_face.h"
-#include "FiniteElement/TestFunctionsTriangle2D.h"
+#include "../../FiniteElement/get_face.h"
+#include "../../FiniteElement/TestFunctionsTriangle2D.h"
 
 	// Quadrature and Test Functions
-#include "FiniteElement/GaussQuad.h"
-#include "FiniteElement/TestFunctions2D.h"
-#include "FiniteElement/TestFunctions3D.h"
+#include "../../FiniteElement/GaussQuad.h"
+#include "../../FiniteElement/TestFunctions2D.h"
+#include "../../FiniteElement/TestFunctions3D.h"
 
 	// Adaptive Meshing
-#include "adap/MeshRefine2D.h"			/// adaptive
+#include "../../adap/MeshRefine2D.h"			/// adaptive
 
 	/// Calculate the characteristic length of each element
 template<class T> struct CalcLength : public unary_function<T, void>

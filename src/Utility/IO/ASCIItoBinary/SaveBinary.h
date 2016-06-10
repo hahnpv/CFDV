@@ -6,7 +6,7 @@
 using namespace std;
 
 #include "LoadBinary.h"
-#include "FiniteElement/get_face.h"
+#include "../../../FiniteElement/get_face.h"
 
 
 template< class ele_t, class node_t>

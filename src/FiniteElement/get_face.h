@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Utility/Tensor.h"
-#include "FDV/Element.h"
+#include "../Utility/Tensor.h"
+#include "../FDV/Element.h"
 
 ele_t get_ele_t(int ndim, int nnod/*, int neqn*/)		// only valid for equations implemented SO FAR
 {														// later systems of eqns may violate these rules.

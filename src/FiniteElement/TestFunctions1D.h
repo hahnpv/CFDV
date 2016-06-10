@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FDV/Node.h"
+#include "../FDV/Node.h"
 
 // 1D test functions for line integrals (boundaries)
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FiniteElement/TestFunctions2D.h"					// dpxi
+#include "TestFunctions2D.h"					// dpxi
 
 	// calculate the test function and normal to a 3D boundary surface necessary for integration
 

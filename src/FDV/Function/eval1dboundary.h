@@ -3,7 +3,7 @@
 //	Function to evaluate 1D boundary for 2D CFD
 //	Need to re-visit all of the cases here, I think they are all suspect.
 
-#include "FDV/Flow.h"
+#include "../Flow.h"
 
 // phibou not used ... 
 void eval1dboundary(int ibndcnd, Flow & flow, std::vector<Node *> & node, Tensor<double, 1> & en)		// nodes temp test

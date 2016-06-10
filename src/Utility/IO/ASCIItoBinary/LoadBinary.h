@@ -4,12 +4,12 @@
 #include <fstream>
 #include <cmath>
 
-#include "FDV/Thermo.h"
-#include "FiniteElement/get_face.h"
-#include "Utility/dictionary.h"
-#include "Utility/split.h"
+#include "../../../FDV/Thermo.h"
+#include "../../../FiniteElement/get_face.h"
+#include "../../dictionary.h"
+#include "../../split.h"
 
-#include "FDV/Element.h"
+#include "../../../FDV/Element.h"
 
 using namespace std;
 

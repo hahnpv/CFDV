@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/Tensor.h"
+#include "../Utility/Tensor.h"
 
 	// Lagrange interpolation Polynomial (nondimensionalized [0,1])
 	// USAGE:

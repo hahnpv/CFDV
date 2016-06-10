@@ -1,8 +1,8 @@
 #pragma once 
 
 #include <ostream>
-#include "Utility/split.h"
-#include "Utility/tostring.h"
+#include "split.h"
+#include "tostring.h"
 
 	///////////////////////////////////////////////////////////////////////////
 	/// TENSOR STREAM PRINTING 												///

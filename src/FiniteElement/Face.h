@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FDV/Node.h"
+#include "../FDV/Node.h"
 //#include "FDV/BC/BoundaryCondition.h"
 // holds face information for boundary conditions
 struct Face

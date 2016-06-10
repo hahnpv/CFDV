@@ -7,9 +7,9 @@
 #include <cmath>
 using namespace std;
 
-#include "Utility/Tensor.h"
-#include "FDV/Element.h"
-#include "Utility/tostring.h"
+#include "../../Utility/Tensor.h"
+#include "../../FDV/Element.h"
+#include "../../Utility/tostring.h"
 #include "boost/assign/std/vector.hpp"
 using namespace boost::assign;
 

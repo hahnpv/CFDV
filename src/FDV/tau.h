@@ -2,7 +2,7 @@
 
 // tau functional object
 #include <iostream>
-#include "Utility/Tensor.h"
+#include "../Utility/Tensor.h"
 using namespace std;
 struct Tau : public Tensor<double, 2>
 {

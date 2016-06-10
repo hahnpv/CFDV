@@ -5,23 +5,23 @@
 using namespace std;
 
 	// 2D
-#include "FDV/NavierStokes2D.h"
-#include "FDV/Function/eval1dboundary.h"
-#include "FiniteElement/TestFunctions1D.h"
+#include "NavierStokes2D.h"
+#include "Function/eval1dboundary.h"
+#include "../FiniteElement/TestFunctions1D.h"
 
 	// 3D
-#include "FDV/NavierStokes3D.h"
-#include "FiniteElement/calc_TF_norm3D.h"					// norm + test functions
-#include "FDV/Function/eval2dboundary.h"
+#include "NavierStokes3D.h"
+#include "../FiniteElement/calc_TF_norm3D.h"					// norm + test functions
+#include "Function/eval2dboundary.h"
 
 	// Quadrature
-#include "FiniteElement/GaussQuad.h"
+#include "../FiniteElement/GaussQuad.h"
 
-#include "FDV/Function/FDVParam.h"
+#include "Function/FDVParam.h"
 	// Adaptive Meshing
-#include "adap/MeshRefine2D.h"
+#include "../adap/MeshRefine2D.h"
 
-#include "FDV/Flow.h"
+#include "Flow.h"
 
 // temporary
 // #include "PrecisionTimer.h"

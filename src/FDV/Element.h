@@ -2,9 +2,9 @@
 
 #include <vector> 
 
-#include "FiniteElement/Face.h"
+#include "../FiniteElement/Face.h"
 #include "Node.h"
-#include "Utility/Tensor.h"
+#include "../Utility/Tensor.h"
 
 enum ele_t { iso2d, iso3d, tria2d, iso1d };		// element type, isoparametric or triangular
 

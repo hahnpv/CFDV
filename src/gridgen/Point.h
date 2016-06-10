@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/Tensor.h"
+#include "../Utility/Tensor.h"
 
 	// Convenience function for a Tensor which represents a 2D or 3D point in space
 struct Point : public Tensor<double, 1>
