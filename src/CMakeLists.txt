@@ -1,0 +1,37 @@
+cmake_minimum_required (VERSION 2.6)
+project (CFDV)
+
+add_subdirectory(adap)
+# add_subdirectory(chem)
+add_subdirectory(Utility)
+add_subdirectory(FiniteElement)
+add_subdirectory(FDV)
+# add_subdirectory(gridgen)
+
+find_package(MPI REQUIRED)
+
+include_directories(${MPI_INCLUDE_PATH}
+"${PROJECT_SOURCE_DIR}/adap"
+"${PROJECT_SOURCE_DIR}/Utility"
+"${CMAKE_SOURCE_DIR}/Utility/IO"
+"${CMAKE_SOURCE_DIR}/Utility/Solvers"
+"${PROJECT_SOURCE_DIR}/FiniteElement"
+"${PROJECT_SOURCE_DIR}/FDV"
+"${CMAKE_SOURCE_DIR}/FDV/Function")
+
+add_executable(CFDV main.cpp)
+
+target_link_libraries(CFDV ${MPI_LIBRARIES})
+
+if(MPI_COMPILE_FLAGS)
+  set_target_properties(CFDV PROPERTIES
+    COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+endif()
+
+if(MPI_LINK_FLAGS)
+  set_target_properties(CFDV PROPERTIES
+    LINK_FLAGS "${MPI_LINK_FLAGS}")
+endif()
+
+# TODO clean up code to compile without -fpermissive
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
