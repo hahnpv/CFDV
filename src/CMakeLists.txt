@@ -1,3 +1,4 @@
+
 cmake_minimum_required (VERSION 2.6)
 project (CFDV)
 
@@ -9,8 +10,10 @@ add_subdirectory(FDV)
 # add_subdirectory(gridgen)
 
 find_package(MPI REQUIRED)
+find_package(Boost 1.5.8 COMPONENTS program_options REQUIRED)
 
 include_directories(${MPI_INCLUDE_PATH}
+${Boost_INCLUDE_DIR}
 "${PROJECT_SOURCE_DIR}/adap"
 "${PROJECT_SOURCE_DIR}/Utility"
 "${CMAKE_SOURCE_DIR}/Utility/IO"
@@ -19,9 +22,11 @@ include_directories(${MPI_INCLUDE_PATH}
 "${PROJECT_SOURCE_DIR}/FDV"
 "${CMAKE_SOURCE_DIR}/FDV/Function")
 
+
+
 add_executable(CFDV main.cpp)
 
-target_link_libraries(CFDV ${MPI_LIBRARIES})
+target_link_libraries(CFDV ${MPI_LIBRARIES} ${Boost_LIBRARIES})
 
 if(MPI_COMPILE_FLAGS)
   set_target_properties(CFDV PROPERTIES
