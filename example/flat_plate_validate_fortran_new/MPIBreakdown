@@ -1,0 +1,52 @@
+1
+elemin, elemax, nodemin, nodemax, nedgenode_l, nedgenode_r, NodeIteratorMin, NodeIteratorMax
+0 1320 0 1394 0 0 0 1394
+2
+elemin, elemax, nodemin, nodemax, nedgenode_l, nedgenode_r, NodeIteratorMin, NodeIteratorMax
+0 660 0 712 0 31 0 681
+660 1320 682 1394 31 0 682 1394
+3
+elemin, elemax, nodemin, nodemax, nedgenode_l, nedgenode_r, NodeIteratorMin, NodeIteratorMax
+0 440 0 485 0 32 0 453
+440 880 454 940 32 32 454 908
+880 1320 909 1394 32 0 909 1394
+4
+elemin, elemax, nodemin, nodemax, nedgenode_l, nedgenode_r, NodeIteratorMin, NodeIteratorMax
+0 330 0 371 0 31 0 340
+330 660 341 712 31 31 341 681
+660 990 682 1053 31 31 682 1022
+990 1320 1023 1394 31 0 1023 1394
+5
+elemin, elemax, nodemin, nodemax, nedgenode_l, nedgenode_r, NodeIteratorMin, NodeIteratorMax
+0 264 0 303 0 32 0 271
+264 528 272 576 32 32 272 544
+528 792 545 849 32 32 545 817
+792 1056 818 1122 32 32 818 1090
+1056 1320 1091 1394 32 0 1091 1394
+6
+elemin, elemax, nodemin, nodemax, nedgenode_l, nedgenode_r, NodeIteratorMin, NodeIteratorMax
+0 220 0 258 0 32 0 226
+220 440 227 485 32 32 227 453
+440 660 454 712 32 31 454 681
+660 880 682 940 31 32 682 908
+880 1100 909 1167 32 32 909 1135
+1100 1320 1136 1394 32 0 1136 1394
+7
+elemin, elemax, nodemin, nodemax, nedgenode_l, nedgenode_r, NodeIteratorMin, NodeIteratorMax
+0 188 0 225 0 32 0 193
+188 376 194 419 32 32 194 387
+376 564 388 613 32 32 388 581
+564 752 582 808 32 32 582 776
+752 940 777 1002 32 32 777 970
+940 1128 971 1196 32 32 971 1164
+1128 1320 1165 1394 32 0 1165 1394
+8
+elemin, elemax, nodemin, nodemax, nedgenode_l, nedgenode_r, NodeIteratorMin, NodeIteratorMax
+0 165 0 201 0 32 0 169
+165 330 170 371 32 31 170 340
+330 495 341 542 31 32 341 510
+495 660 511 712 32 31 511 681
+660 825 682 883 31 32 682 851
+825 990 852 1053 32 31 852 1022
+990 1155 1023 1224 31 32 1023 1192
+1155 1320 1193 1394 32 0 1193 1394

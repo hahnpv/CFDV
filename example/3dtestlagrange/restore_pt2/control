@@ -1,0 +1,12 @@
+! control file
+itermax = 1000
+cfl = 0.25
+gmresrestart = 10
+gmresiter = 5
+ndim = 3
+nnod = 8
+neqn = 5
+adap = 1
+nodes = 655
+elements = 464
+iter = 2
