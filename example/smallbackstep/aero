@@ -1,0 +1,8 @@
+! aero file
+M = 0.01
+Pr = 0.72
+Re = 100.0
+Tinf = 460
+Twall = 1.000
+Adiabatic = 0
+gamma = 1.4
