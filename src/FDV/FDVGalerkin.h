@@ -225,7 +225,8 @@ struct FDVGalerkin : public unary_function<T, void>
 			double J_xi, J_eta;
 			Tensor<double, 1> e_xi(ndim), e_eta(ndim);
 			double v_xi, v_eta;
-			double h_xi, h_eta;
+			double h_xi = 0.0;
+			double h_eta = 0.0;
 			double R_xi, R_eta;
 			double alpha_xi, alpha_eta;
 			double S;
@@ -272,18 +273,23 @@ struct FDVGalerkin : public unary_function<T, void>
 		//	cout << "R: " << R_xi << " " << R_eta << endl;
 		//	cout << "S: " << S << endl;
 
-			alpha_xi  = coth(R_xi  / 2.) - 2./R_xi;
-			alpha_eta = coth(R_eta / 2.) - 2./R_eta;
-	
-				// If R == 0, then alpha is invalid (division by zero)
-				// Set alpha = 0
-				// This is justifiable since in tau, alpha is multiplied by velocity (which is zero) and nulls it anyways.
+			// If R == 0, then alpha is invalid (division by zero)
+			// Set alpha = 0
+			// This is justifiable since in tau, alpha is multiplied by velocity (which is zero) and nulls it anyways.
 			if (R_xi == 0)
 				alpha_xi = 0;
+			else
+				alpha_xi = coth(R_xi / 2.) - 2. / R_xi;
+
 			if (R_eta == 0)
 				alpha_eta = 0;
-
-			tau = (1./4.) * (alpha_xi * h_xi * v_xi + alpha_eta * h_eta * v_eta) / S;
+			else
+				alpha_eta = coth(R_eta / 2.) - 2./R_eta;
+	
+			if (S == 0)			// FIXME hack
+				tau = 0;
+			else
+				tau = (1./4.) * (alpha_xi * h_xi * v_xi + alpha_eta * h_eta * v_eta) / S;
 
 			for (int N = 0; N < nnod; N++)
 			{

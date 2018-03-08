@@ -15,7 +15,7 @@ template<class T> struct CFL : public unary_function<T, void>
 			(*this)(elements[i]);				
 		}
 
-		MPI::COMM_WORLD.Allreduce(&dt, &delta_t, 1, MPI_DOUBLE, MPI_MIN);
+		MPI_Allreduce(&dt, &delta_t, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 	}
 
 	void operator() (T e) 

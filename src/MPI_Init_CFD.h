@@ -3,7 +3,7 @@
 // init CFD stuff with MPI.
 
 // presently 2D specific, to be extended to 3D.
-
+#include "mpi.h"
 #include <vector>
 #include "Utility/dictionary.h"
 #include <iostream>
@@ -22,8 +22,9 @@ struct MPI_init_CFD
 	{
 		//// MPI Initialize ////
 		int rc = MPI_Init(&argc,&argv);
-		size = MPI::COMM_WORLD.Get_size();
-		rank = MPI::COMM_WORLD.Get_rank();
+		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+		MPI_Comm_size(MPI_COMM_WORLD, &size);
+
 /*
 		int min = 0;
 		int max = 0;
@@ -108,22 +109,23 @@ struct MPI_init_CFD
 		if (rank != 0)
 		{
 			cout << "rank " << rank << " sending to rank " << rank-1 << endl;
-			MPI::COMM_WORLD.Send( &nodes[0]->number, 1, MPI_INT, rank-1, 1);					// rank_right_min
+			MPI_Send( &nodes[0]->number, 1, MPI_INT, rank-1, 1, MPI_COMM_WORLD);					// rank_right_min
+			
 		}
 		if (rank != size-1)
 		{
 			cout << "rank " << rank << " receiving from rank " << rank+1 << endl;
-			MPI::COMM_WORLD.Send( &nodes[nodes.size()-1]->number, 1, MPI_INT, rank+1,  1);		// rank_left_max
+			MPI_Send( &nodes[nodes.size()-1]->number, 1, MPI_INT, rank+1,  1, MPI_COMM_WORLD);		// rank_left_max
 		}
 		//// SEND BLOCK ////
 
 		//// RECV BLOCK ////
 		if (rank != size-1)
 		{
-			MPI::COMM_WORLD.Recv( &rank_right_min, 1, MPI_INT, rank+1, 1);
+			MPI_Recv( &rank_right_min, 1, MPI_INT, rank+1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);  // FIXME unclear if IGNORE flag is right
 		}
 		if (rank != 0)
-			MPI::COMM_WORLD.Recv( &rank_left_max, 1, MPI_INT, rank-1, 1);
+			MPI_Recv( &rank_left_max, 1, MPI_INT, rank-1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		//// RECV BLOCK ////
 
 		int ne_l = 0;

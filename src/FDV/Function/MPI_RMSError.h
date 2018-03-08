@@ -39,16 +39,21 @@ template<class T> struct MPI_RMSError : public RMSBase<T> // public unary_functi
 
 		for (int i = 0; i < neqn; i++)
 		{
-			MPI::COMM_WORLD.Allreduce(&dUlocal(i), &dU(i), 1, MPI_DOUBLE, MPI_SUM);
-			MPI::COMM_WORLD.Allreduce(&dU0local(i), &dU0(i), 1, MPI_DOUBLE, MPI_SUM);
+			MPI_Allreduce(&dUlocal(i), &dU(i), 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+			MPI_Allreduce(&dU0local(i), &dU0(i), 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 		}
 
 		for (int i = 0; i < neqn; i++)
 		{
-			Urms(i) = sqrt( dU(i) / dU0(i) ) - 1.0;
+			if (dU0(i) == 0)				// fixme avoid fp error
+				Urms(i) = 1;
+			else
+				Urms(i) = sqrt(dU(i) / dU0(i)) - 1.0;
 		}
 
-		if ( MPI::COMM_WORLD.Get_rank() == 0)
+		int rank = 0;
+		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+		if ( rank == 0)
 		{
 			ofstream fout(filename.c_str(), ios::app);
 

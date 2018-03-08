@@ -1,5 +1,7 @@
 #pragma once 
 
+#include "mpi.h"
+
 	///////////////////////////////////////////////////////////////////////////
 	/// TENSOR MPI Parallelized Functions									///
 	///////////////////////////////////////////////////////////////////////////
@@ -11,7 +13,7 @@ T MPIdot(Tensor<T, 1> & t1, Tensor<T, 1> & t2)
 	T result = 0;
 	T local_result = dot(t1, t2);
 
-	MPI::COMM_WORLD.Allreduce(&local_result, &result, 1, MPI_DOUBLE, MPI_SUM);
+	MPI_Allreduce(&local_result, &result, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
 	return result;
 }
@@ -23,7 +25,7 @@ T MPIdot(Tensor<T, 2> & t1, unsigned int j1, Tensor<T, 2> & t2, unsigned int j2)
 	T result = 0;
 	T local_result = dot(t1, j1, t2, j2);
 
-	MPI::COMM_WORLD.Allreduce(&local_result, &result, 1, MPI_DOUBLE, MPI_SUM);
+	MPI_Allreduce(&local_result, &result, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
 	return result;
 }
@@ -35,7 +37,7 @@ T MPImag(Tensor<T, 1> & t)
 	T result = 0;
 	T local_result = dot(t,t);
 
-	MPI::COMM_WORLD.Allreduce(&local_result, &result, 1, MPI_DOUBLE, MPI_SUM);
+	MPI_Allreduce(&local_result, &result, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
 	return sqrt(result);
 }
@@ -47,7 +49,7 @@ T MPImag(Tensor<T, 2> & t, int j)
 	T result = 0;
 	T local_result = dot(t, j, t, j);
 
-	MPI::COMM_WORLD.Allreduce(&local_result, &result, 1, MPI_DOUBLE, MPI_SUM);
+	MPI_Allreduce(&local_result, &result, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
 	return sqrt(result);
 }

@@ -55,6 +55,10 @@
 	// Test
 #include "FDV/Function/AxisymmetricFlow.h"
 
+	// Floating Point Break on NaN (windows debugging)
+//unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
+
+
 using namespace std;
 
 	//	3. Find unifications between 2D and 3D if any
@@ -205,7 +209,7 @@ timer_l.start();
 
 	delete config;
     
-	MPI::Finalize(); 
+	MPI_Finalize(); 
 	
 	return 0;
 }

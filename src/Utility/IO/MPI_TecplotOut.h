@@ -93,16 +93,16 @@ struct MPI_TecplotOut
 
 			//// SEND BLOCK ////
 			int num_msg_send = elements.size();
-			MPI::COMM_WORLD.Send( &num_msg_send, 1, MPI_INT, other_rank, tag);
+			MPI_Send( &num_msg_send, 1, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
 			for (int j = 0; j < num_msg_send; j++)
 			{
-				MPI::COMM_WORLD.Send( &elements[j], 1, ElementType, other_rank, tag);
+				MPI_Send( &elements[j], 1, ElementType, other_rank, tag, MPI_COMM_WORLD);
 			}
 			num_msg_send = nodes.size();
-			MPI::COMM_WORLD.Send( &num_msg_send, 1, MPI_INT, other_rank, tag);
+			MPI_Send( &num_msg_send, 1, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
 			for (int j = 0; j < num_msg_send; j++)
 			{
-				MPI::COMM_WORLD.Send( &nodes[j], 1, NodeType, other_rank, tag);
+				MPI_Send( &nodes[j], 1, NodeType, other_rank, tag, MPI_COMM_WORLD);
 			}
 			//// SEND BLOCK ////		
 		}
@@ -110,22 +110,24 @@ struct MPI_TecplotOut
 		if (rank == 0)
 		{
 			int tag = 1;
-			for (int k = 0; k < MPI::COMM_WORLD.Get_size() - 1; k++)		// size == 2, minus 1 for 0,1, .
+			int size = 0;
+			MPI_Comm_size(MPI_COMM_WORLD, &size);
+			for (int k = 0; k < size - 1; k++)		// size == 2, minus 1 for 0,1, .
 			{
 				//// RECV BLOCK ////
 				int num_msg_recv = 0;
-				MPI::COMM_WORLD.Recv( &num_msg_recv, 1, MPI_INT, k+1, tag);
+				MPI_Recv( &num_msg_recv, 1, MPI_INT, k+1, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);  // FIXME unclear if IGNORE flag is right
 				for (int j = 0; j < num_msg_recv; j++)
 				{
 					elem e;
-					MPI::COMM_WORLD.Recv( &e, 1, ElementType, k+1, tag);
+					MPI_Recv( &e, 1, ElementType, k+1, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 					elements.push_back( e);
 				}
-				MPI::COMM_WORLD.Recv( &num_msg_recv, 1, MPI_INT, k+1, tag);
+				MPI_Recv( &num_msg_recv, 1, MPI_INT, k+1, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 				for (int j = 0; j < num_msg_recv; j++)
 				{
 					pnode n;
-					MPI::COMM_WORLD.Recv( &n, 1, NodeType, k+1, tag);
+					MPI_Recv( &n, 1, NodeType, k+1, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 					nodes.push_back( n);
 				}
 				//// RECV BLOCK ////

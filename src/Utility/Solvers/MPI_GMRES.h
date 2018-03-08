@@ -123,7 +123,7 @@ struct MPI_GMRES : public GMRESbase
 	/// @param elements element data structure, provides input data
 	void iterate( std::vector< Element *> & elements )
 	{
-		MPI::COMM_WORLD.Barrier();
+		MPI_Barrier(MPI_COMM_WORLD);
 		cout << "MPI_GMRES::Iterate" << endl;
 
 		if (!do_once)
@@ -187,7 +187,7 @@ struct MPI_GMRES : public GMRESbase
 						cout << "mag < tol, breaking..." << endl;			// need to msg other ranks!
 						stat = false;
 				}
-				MPI::COMM_WORLD.Bcast(&stat,1,MPI::BOOL,0);
+				MPI_Bcast(&stat,1,MPI_C_BOOL,0, MPI_COMM_WORLD);				// fixme was MPI::BOOL doesn't exist in C api
 				if ( !stat)
 				{
 					cout << "tolerence met msg received in rank " << rank << endl;
@@ -782,29 +782,31 @@ private:
 	template< class T>
 	void MPISwapRank(std::vector<T> & data, std::vector<T> & update, int other_rank, MPI_Datatype & type)
 	{
-		if (other_rank == -1 || other_rank == MPI::COMM_WORLD.Get_size())
+		int size = 0;
+		MPI_Comm_size(MPI_COMM_WORLD, &size);
+		if (other_rank == -1 || other_rank == size)
 			return;
 
 		int tag = rank * other_rank;
 
 		//// SEND BLOCK ////
 		int num_msg_send = data.size();
-		MPI::COMM_WORLD.Send( &num_msg_send, 1, MPI_INT, other_rank, tag);
+		MPI_Send( &num_msg_send, 1, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
 
 		//// RECV BLOCK ////
 		T dat;
 		int num_msg_recv = 0;
-		MPI::COMM_WORLD.Recv( &num_msg_recv, 1, MPI_INT, other_rank, tag);
+		MPI_Recv( &num_msg_recv, 1, MPI_INT, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		for (int j = 0; j < num_msg_recv; j++)
 		{
-			MPI::COMM_WORLD.Recv( &dat, 1, type, other_rank, tag);
+			MPI_Recv( &dat, 1, type, other_rank, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 			update.push_back( dat);
 		}
 		//// RECV BLOCK ////
 
 		for (int j = 0; j < num_msg_send; j++)
 		{
-			MPI::COMM_WORLD.Send( &data[j], 1, type, other_rank, tag);
+			MPI_Send( &data[j], 1, type, other_rank, tag, MPI_COMM_WORLD);
 		}
 		//// SEND BLOCK ////
 

@@ -21,8 +21,8 @@ struct MPIBinaryConfiguration : ConfigurationBase
 		gmres_rest = key.get_val<int>("gmresrestart");				/// Number of GMRES restarts
 
 		int rc = MPI_Init(&argc,&argv);
-		size = MPI::COMM_WORLD.Get_size();
-		rank = MPI::COMM_WORLD.Get_rank();
+		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+		MPI_Comm_size(MPI_COMM_WORLD, &size);
 
 		// instead of MPI_init_CFD, read in the MPIBreakdown file...
 		// still not as parallel as it could be but much better.
@@ -158,20 +158,21 @@ struct MPIBinaryConfiguration : ConfigurationBase
 
 		cout << "opening file" << endl;
 		int size = 0;
-		MPI::COMM_WORLD.Allreduce(&nodemax, &size, 1,MPI_INT, MPI_MAX);
+		MPI_Allreduce(&nodemax, &size, 1,MPI_INT, MPI_MAX, MPI_COMM_WORLD);
 
-		MPI::File fh = MPI::File::Open(MPI::COMM_WORLD, 
-			fname.c_str(),  MPI::MODE_WRONLY | MPI::MODE_CREATE, MPI::INFO_NULL);
+		MPI_File fh;
+		MPI_File_open(MPI_COMM_WORLD,
+			fname.c_str(),  MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fh);
 
-		fh.Set_size(size * sizeof(node_t) );
+		MPI_File_set_size(fh, size * sizeof(node_t) );
 
 		cout << "writing shared" << endl;
-		fh.Seek(sizeof(node_t)* nodes[0]->number /*nele*rank*/, MPI_SEEK_SET);			// naive as we have overlapping nodes use node iter
-		fh.Write(buf, nele, TType);
+		MPI_File_seek(fh, sizeof(node_t)* nodes[0]->number /*nele*rank*/, MPI_SEEK_SET);			// naive as we have overlapping nodes use node iter
+		MPI_File_write(fh, buf, nele, TType, MPI_STATUS_IGNORE);									// fixme status object unclear 
 //		fh.Write_all(buf, nele, TType);
 
 		cout << "closing" << endl;
-		fh.Close();
+		MPI_File_close(&fh);
 		cout << "done" << endl;
 	}
 	
