@@ -53,8 +53,6 @@ template<class T> struct CFL : public unary_function<T, void>
 			dx_dv = dxele;
 			dt = cfl * dx_dv;
 		}
-		
-		e->dt = dxele * cfl;
 	}
 
   double cfl;
