@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="adap">
+      <UniqueIdentifier>{d8a42e4f-c2df-47e2-900b-958a9b5a9436}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FDV">
+      <UniqueIdentifier>{3d47e224-978f-4cc2-834e-1dcd11c3f503}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FDV\Function">
+      <UniqueIdentifier>{02e6b3b5-59b2-4974-8e81-b9c4fc0fd097}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Finite Element">
+      <UniqueIdentifier>{9cd17f0d-d1e8-4b3a-853a-0d58ea1c29ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{dc4665d1-bd68-41e2-b13d-99aa1f8a7379}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\IO">
+      <UniqueIdentifier>{68c9f4ae-7db8-485d-ae6c-deab2bf5c3a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\IO\ASCIItoBinary">
+      <UniqueIdentifier>{a1c3976e-adb3-4b51-acd7-f1493a968962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility\Solvers">
+      <UniqueIdentifier>{55023db0-96d3-4853-98b2-527535c6a73a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\adap\ElementAssociation.h">
+      <Filter>adap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\adap\MeshRefine.h">
+      <Filter>adap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\adap\MeshRefine2D.h">
+      <Filter>adap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\adap\MeshUnrefine2D.h">
+      <Filter>adap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\adap\RefineListAdaptive.h">
+      <Filter>adap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\adap\RefineListProgrammed.h">
+      <Filter>adap</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Element.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\FDVGalerkin - Original.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\FDVGalerkin.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\FDVGalerkin_FGB.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Flow.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Flow_FGB.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\NavierStokes.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\NavierStokes2D.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\NavierStokes3D.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Node.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\tau.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Thermo.h">
+      <Filter>FDV</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\ApplyBC.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\AxisymmetricFlow.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\CalcLength.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\ClearElement.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\EnforceBC.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\eval1dboundary.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\eval2dboundary.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\FDVParam.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\LUFactorization.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\MatrixOut.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\MPI_CFL.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\MPI_RMSError.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\NodeCheck.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\NodeUnpack.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FDV\Function\RMSBase.h">
+      <Filter>FDV\Function</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FiniteElement\calc_TF_norm3D.h">
+      <Filter>Finite Element</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FiniteElement\Face.h">
+      <Filter>Finite Element</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FiniteElement\GaussQuad.h">
+      <Filter>Finite Element</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FiniteElement\get_face.h">
+      <Filter>Finite Element</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FiniteElement\Lagrange.h">
+      <Filter>Finite Element</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FiniteElement\TestFunctions.h">
+      <Filter>Finite Element</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FiniteElement\TestFunctions1D.h">
+      <Filter>Finite Element</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FiniteElement\TestFunctions2D.h">
+      <Filter>Finite Element</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FiniteElement\TestFunctions3D.h">
+      <Filter>Finite Element</Filter>
+    </ClInclude>
+    <ClInclude Include="src\FiniteElement\TestFunctionsTriangle2D.h">
+      <Filter>Finite Element</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\dictionary.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\MPI_Breakdown.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\parse.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\PrecisionTimer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\PrecisionTimerLinux.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\Singleton.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\split.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\Tensor Vector Based.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\Tensor.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\TensorMath.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\TensorMPI.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\TensorStream.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\Timer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\tostring.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\VectorStreamPrint.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\IO\Load.h">
+      <Filter>Utility\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\IO\MPI_Save.h">
+      <Filter>Utility\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\IO\MPI_TecplotOut.h">
+      <Filter>Utility\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\IO\NewLoad.h">
+      <Filter>Utility\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\IO\ASCIItoBinary\LoadBinary.h">
+      <Filter>Utility\IO\ASCIItoBinary</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\IO\ASCIItoBinary\SaveBinary.h">
+      <Filter>Utility\IO\ASCIItoBinary</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\Solvers\GMRES.h">
+      <Filter>Utility\Solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\Solvers\GMRESbase.h">
+      <Filter>Utility\Solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utility\Solvers\MPI_GMRES.h">
+      <Filter>Utility\Solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConfigurationBase.h" />
+    <ClInclude Include="src\MPI_Init_CFD.h" />
+    <ClInclude Include="src\MPIBinaryConfiguration.h" />
+    <ClInclude Include="src\MPIConfiguration.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+  </ItemGroup>
+</Project>
