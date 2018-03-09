@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.27428.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CFDV", "CFDV.vcxproj", "{0996FDED-8945-44B9-AB75-ED28FE4C92CF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gridgen", "gridgen\Gridgen.vcproj", "{EAA242A5-809E-4DE3-B55B-F6056957A786}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -17,10 +15,6 @@ Global
 		{0996FDED-8945-44B9-AB75-ED28FE4C92CF}.Debug|Win32.Build.0 = Debug|Win32
 		{0996FDED-8945-44B9-AB75-ED28FE4C92CF}.Release|Win32.ActiveCfg = Release|Win32
 		{0996FDED-8945-44B9-AB75-ED28FE4C92CF}.Release|Win32.Build.0 = Release|Win32
-		{EAA242A5-809E-4DE3-B55B-F6056957A786}.Debug|Win32.ActiveCfg = Debug|Win32
-		{EAA242A5-809E-4DE3-B55B-F6056957A786}.Debug|Win32.Build.0 = Debug|Win32
-		{EAA242A5-809E-4DE3-B55B-F6056957A786}.Release|Win32.ActiveCfg = Release|Win32
-		{EAA242A5-809E-4DE3-B55B-F6056957A786}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
