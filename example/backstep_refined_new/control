@@ -2,7 +2,7 @@
 tmax = 100
 itermax = 100000
 cfl = 1.0
-gmresrestart = 10
+gmresrestart = 1
 gmresiter = 25
 ndim = 2
 nnod = 4
