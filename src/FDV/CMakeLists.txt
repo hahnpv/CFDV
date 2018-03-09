@@ -6,7 +6,6 @@ set(FDV_source_files
   Element.h
   NavierStokes3D.h
   tau.h
-  FDVGalerkin_FGB.h
   Flow_FGB.h
   NavierStokes1D.h
   NavierStokes.h
