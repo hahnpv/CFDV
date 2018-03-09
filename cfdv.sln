@@ -7,14 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CFDV", "CFDV.vcxproj", "{09
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gridgen", "gridgen\Gridgen.vcproj", "{EAA242A5-809E-4DE3-B55B-F6056957A786}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Extract", "Extract.vcproj", "{3473365E-0096-43A4-9E61-CA0BB87B42A1}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConvertASCIItoBinary", "ConvertASCIItoBinary.vcproj", "{D2A390F1-65BE-4F8C-ACA5-ADFF116B9D66}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Dimension", "Dimension.vcproj", "{4AC51F52-71A7-4106-BC39-08C33E987CAC}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "chem", "chem.vcproj", "{354B0966-8ACD-4C4B-B99A-893E7CAB4F27}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -29,22 +21,6 @@ Global
 		{EAA242A5-809E-4DE3-B55B-F6056957A786}.Debug|Win32.Build.0 = Debug|Win32
 		{EAA242A5-809E-4DE3-B55B-F6056957A786}.Release|Win32.ActiveCfg = Release|Win32
 		{EAA242A5-809E-4DE3-B55B-F6056957A786}.Release|Win32.Build.0 = Release|Win32
-		{3473365E-0096-43A4-9E61-CA0BB87B42A1}.Debug|Win32.ActiveCfg = Debug|Win32
-		{3473365E-0096-43A4-9E61-CA0BB87B42A1}.Debug|Win32.Build.0 = Debug|Win32
-		{3473365E-0096-43A4-9E61-CA0BB87B42A1}.Release|Win32.ActiveCfg = Release|Win32
-		{3473365E-0096-43A4-9E61-CA0BB87B42A1}.Release|Win32.Build.0 = Release|Win32
-		{D2A390F1-65BE-4F8C-ACA5-ADFF116B9D66}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D2A390F1-65BE-4F8C-ACA5-ADFF116B9D66}.Debug|Win32.Build.0 = Debug|Win32
-		{D2A390F1-65BE-4F8C-ACA5-ADFF116B9D66}.Release|Win32.ActiveCfg = Release|Win32
-		{D2A390F1-65BE-4F8C-ACA5-ADFF116B9D66}.Release|Win32.Build.0 = Release|Win32
-		{4AC51F52-71A7-4106-BC39-08C33E987CAC}.Debug|Win32.ActiveCfg = Debug|Win32
-		{4AC51F52-71A7-4106-BC39-08C33E987CAC}.Debug|Win32.Build.0 = Debug|Win32
-		{4AC51F52-71A7-4106-BC39-08C33E987CAC}.Release|Win32.ActiveCfg = Release|Win32
-		{4AC51F52-71A7-4106-BC39-08C33E987CAC}.Release|Win32.Build.0 = Release|Win32
-		{354B0966-8ACD-4C4B-B99A-893E7CAB4F27}.Debug|Win32.ActiveCfg = Debug|Win32
-		{354B0966-8ACD-4C4B-B99A-893E7CAB4F27}.Debug|Win32.Build.0 = Debug|Win32
-		{354B0966-8ACD-4C4B-B99A-893E7CAB4F27}.Release|Win32.ActiveCfg = Release|Win32
-		{354B0966-8ACD-4C4B-B99A-893E7CAB4F27}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
