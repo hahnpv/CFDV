@@ -25,9 +25,13 @@ struct AdaptiveRefineList
 		refine_level.resize( n+1+1);				// add 1 for initial, add 1 for refine_level of zero
 		refine_level[0] = 0;						// start at zero
 
+		FDVParam<Element *> fdvparam;			    /// Calculate the FDV parameters
+		double s1, s2, s3, s4;
 		for (int i=0; i < size; i++)				// aggregate nodes that need refining. 
 		{
-			if (elements[i]->s1 > 0.8)
+			fdvparam(elements[i], s1, s2, s3, s4);	// NOTE used to cache the s values in elements themselves but no longer... was it for RAM or performance?
+//			if (elements[i]->s1 > 0.8)
+			if (s1 > 0.8)
 			{
 				refine_list.push_back( i);
 			}

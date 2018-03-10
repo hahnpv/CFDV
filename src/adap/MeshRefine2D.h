@@ -352,7 +352,11 @@ template<class Elements, class Nodes> struct MeshRefine2D
 		std::vector<int> discard_node;
 		for (int i=0; i < nodes.size(); i++)					// node 1 iterator
 		{
-			if(	rms(nodes[i]->x, node->x) < tol )
+//			if(	rms(nodes[i]->x, node->x) < tol )				// FIXME lost Tensor rms implementation. making a new one.
+			double distance = 0;
+			distance = sqrt((nodes[i]->x(0) - node->x(0))*(nodes[i]->x(0) - node->x(0))
+				+ (nodes[i]->x(1) - node->x(1))*(nodes[i]->x(1) - node->x(1)));
+			if(distance < tol)
 			{
 				delete node;									// UNVERIFIED
 				return nodes[i]->number;
@@ -434,7 +438,7 @@ template<class Elements, class Nodes> struct MeshRefine2D
 		}
 
 			// Calculate new area/length in element
-		CalcLength<Elements *> calc_length(ndim);
+		CalcLength<Elements *> calc_length(ndim,4);				// FIXME hardcoding nnod
 		for (int i=0; i < element.size(); i++)
 		{
 			calc_length(element[i]);

@@ -46,10 +46,10 @@
 #include "Utility/PrecisionTimer.h"
 
 	// Mesh Refinement
-// #include "ElementAssociation.h"
-// #include "MeshRefine2D.h"
+#include "ElementAssociation.h"
+#include "MeshRefine2D.h"
 // #include "MeshUnrefine2D.h"
-// #include "RefineListAdaptive.h"				// attempt at true adaption based on s1 parameter
+#include "RefineListAdaptive.h"				// attempt at true adaption based on s1 parameter
 // #include "RefineListProgrammed.h"			// programmed test of element refinement
 
 	// Test
