@@ -122,7 +122,7 @@ struct MPI_init_CFD
 		//// RECV BLOCK ////
 		if (rank != size-1)
 		{
-			MPI_Recv( &rank_right_min, 1, MPI_INT, rank+1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);  // FIXME unclear if IGNORE flag is right
+			MPI_Recv( &rank_right_min, 1, MPI_INT, rank+1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		}
 		if (rank != 0)
 			MPI_Recv( &rank_left_max, 1, MPI_INT, rank-1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);

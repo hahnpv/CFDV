@@ -64,7 +64,7 @@ template<class E> struct FDVParam : public unary_function<E, void>
 
 		// s1,s2 
 		double eps = 0.0000001;
-		r = sqrt( pow(M_max, 2) - pow(M_min, 2) ) / (M_min+eps); // FIXME
+		r = sqrt( pow(M_max, 2) - pow(M_min, 2) ) / (M_min+eps); // FIXME eps to avoid floating point error
 
 		if ( r > 0.01)
 		{
@@ -86,7 +86,7 @@ template<class E> struct FDVParam : public unary_function<E, void>
 		s2 = 0.5 * ( 1 + pow(s1, eta));
 
 		// s3,s4
-		r = sqrt( pow(Re_max, 2) - pow(Re_min, 2) ) / (Re_min+eps); // FIXME
+		r = sqrt( pow(Re_max, 2) - pow(Re_min, 2) ) / (Re_min+eps); // FIXME eps to avoid floating point error
 
 		if ( r > 0.01)
 		{

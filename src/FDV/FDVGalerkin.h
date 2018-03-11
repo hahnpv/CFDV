@@ -217,9 +217,10 @@ struct FDVGalerkin : public unary_function<T, void>
 		sum(node,Phi,dPhi);
 		flow.tau.calculate(flow.mu,flow.dV);
 
-			// NUMERICAL DIFFUSION TERM //
+			// NUMERICAL DIFFUSION TERM // FIXME
 		Tensor<double,1> Psi(nnod);		/// numerical diffusion test function
 		double tau = 0;
+		
 		if (ndim == 2)					// eventually generalize then have a n.d. flag.
 		{
 			double J_xi, J_eta;
@@ -233,19 +234,40 @@ struct FDVGalerkin : public unary_function<T, void>
 
 //			jacobian jac(dtestfunction(zeta), node);
 			Tensor<double, 2> dtf = dtestfunction(zeta);
-			jacobian jac(dtf, node);
+			if (nnod == 4)										/// fixme using inheritance or something
+			{
+				jacobian jac(dtf, node);
+				J_xi = pow(jac(0, 0), 2) + pow(jac(1, 0), 2);
+				J_eta = pow(jac(0, 1), 2) + pow(jac(1, 1), 2);
 
+				for (int i = 0; i < ndim; i++)
+				{
+					e_xi(i) = 1. / pow(J_xi, 0.5)  * jac(i, 0);	// worked as dPxi()
+					e_eta(i) = 1. / pow(J_eta, 0.5) * jac(i, 1);
+				}
+			}
+			else
+			{
+				jacobiantri jac(dtf, node);
+				J_xi = pow(jac(0, 0), 2) + pow(jac(1, 0), 2);
+				J_eta = pow(jac(0, 1), 2) + pow(jac(1, 1), 2);
+
+				for (int i = 0; i < ndim; i++)
+				{
+					e_xi(i) = 1. / pow(J_xi, 0.5)  * jac(i, 0);	// worked as dPxi()
+					e_eta(i) = 1. / pow(J_eta, 0.5) * jac(i, 1);
+				}
+			}
+/*
 			J_xi  =  pow( jac(0, 0) ,2) + pow( jac(1, 0) ,2);
 			J_eta =  pow( jac(0, 1) ,2) + pow( jac(1, 1) ,2);
-
-		//	cout << "J_xi, J_eta: " << J_xi << " " << J_eta << endl;
 
 			for (int i = 0; i < ndim; i++)
 			{
 				e_xi(i)  = 1. / pow( J_xi,  0.5)  * jac(i, 0);	// worked as dPxi()
 				e_eta(i) = 1. / pow( J_eta, 0.5) * jac(i, 1);
 			}
-
+*/
 			v_xi  = dot(flow.v, e_xi);
 			v_eta = dot(flow.v, e_eta);
 
@@ -302,7 +324,8 @@ struct FDVGalerkin : public unary_function<T, void>
 
 		}
 			// NUMERICAL DIFFUSION TERM //
-/*			// DISCONTINUITY CAPTURING //
+
+			// DISCONTINUITY CAPTURING // FIXME this was commented out... verify correctness
 		Tensor<double, 1> A(2);
 		Tensor<double, 1> v(2);			// v_i^b
 		double gamma = 0;
@@ -356,7 +379,7 @@ struct FDVGalerkin : public unary_function<T, void>
 			}
 		}
 //		cout << "Psi: " << Psi << " tau_b: " << tau_b << " gamma: " << gamma << endl;
-*/			// DISCONTINUITY CAPTURING //
+			// DISCONTINUITY CAPTURING //
 
 		// 4. Calculate a, b, c jacobians and F,G fluxes
 		NS->calc_a(flow, a);

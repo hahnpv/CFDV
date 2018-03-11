@@ -15,7 +15,7 @@ add_subdirectory(FDV)
 # add_subdirectory(gridgen)
 
 find_package(MPI REQUIRED)
-find_package(Boost 1.5.8 COMPONENTS program_options REQUIRED)
+find_package(Boost 1.5.8 COMPONENTS program_options system REQUIRED)
 
 include_directories(${MPI_INCLUDE_PATH}
 ${Boost_INCLUDE_DIR}

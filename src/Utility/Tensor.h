@@ -225,7 +225,7 @@ bool operator==(Tensor<T, ndim> & t1, Tensor<T, ndim> & t2)
 {
 	for (int i=0; i < t1.imax() * t1.jmax() * t1.kmax() * t1.lmax(); i++)
 	{
-		if ( t1.data[i] != t2.data[i])
+		if ( t1.ref->data[i] != t2.ref->data[i])
 			return false;
 	}
 	return true;

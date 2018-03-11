@@ -275,7 +275,8 @@ template<class Elements, class Nodes> struct MeshRefine2D
 		e->Hnm(indexi, indexi) = 1.0;
 
 			// Update adap flag if Identity matrix
-		if ( e->Hnm == Identity<double>(nnod) )
+		Tensor<double, 2> ident = Identity<double>(nnod);      // gcc doesn't like instantiation in if()
+		if ( e->Hnm == ident )
 		{
 			e->adap = false;
 		}
@@ -352,7 +353,7 @@ template<class Elements, class Nodes> struct MeshRefine2D
 		std::vector<int> discard_node;
 		for (int i=0; i < nodes.size(); i++)					// node 1 iterator
 		{
-//			if(	rms(nodes[i]->x, node->x) < tol )				// FIXME lost Tensor rms implementation. making a new one.
+//			if(	rms(nodes[i]->x, node->x) < tol )				// FIXME rms works on gcc but not vs. Make tensor impl
 			double distance = 0;
 			distance = sqrt((nodes[i]->x(0) - node->x(0))*(nodes[i]->x(0) - node->x(0))
 				+ (nodes[i]->x(1) - node->x(1))*(nodes[i]->x(1) - node->x(1)));
@@ -438,7 +439,7 @@ template<class Elements, class Nodes> struct MeshRefine2D
 		}
 
 			// Calculate new area/length in element
-		CalcLength<Elements *> calc_length(ndim,4);				// FIXME hardcoding nnod
+		CalcLength<Elements *> calc_length(ndim,4);				// nnod hardcoded but that's ok we only use quads
 		for (int i=0; i < element.size(); i++)
 		{
 			calc_length(element[i]);
@@ -675,7 +676,12 @@ template<class Elements, class Nodes> struct MeshRefine2D
 		/// Change to be like 3D which I think is correct ... 
 	void addFaces_2d(Element * e, std::vector<Element *> & element)
 	{
-		for (int i = 0; i < e->face.size(); i++)
+		if (e->number == 29)
+		{
+			cout << "modifying element 29" << endl;
+		}
+//		for (int i = 0; i < e->face.size(); i++)
+		for (int i = e->face.size()-1; i>=0; i--)
 		{
 			int face = get_face(e->face[i]->n);
 			if ( face == 0 )		// Bottom face, implement in elements e and 0

@@ -46,10 +46,10 @@
 #include "Utility/PrecisionTimer.h"
 
 	// Mesh Refinement
-#include "ElementAssociation.h"
-#include "MeshRefine2D.h"
+#include "adap/ElementAssociation.h"
+#include "adap/MeshRefine2D.h"
 // #include "MeshUnrefine2D.h"
-#include "RefineListAdaptive.h"				// attempt at true adaption based on s1 parameter
+#include "adap/RefineListAdaptive.h"				// attempt at true adaption based on s1 parameter
 // #include "RefineListProgrammed.h"			// programmed test of element refinement
 
 	// Test
@@ -119,12 +119,30 @@ timer_l.start();
 		timer.reset();
 
 		for_each(elements.begin(), elements.end(), ClearElement<Element *>());					/// Clear matrices in each element
-
+		
+		if(iter==1)
+		{ 
+			/// MESH REFINEMENT ///
+			std::vector<int> elelist;			// elements to be refined
+			std::vector<int> refine_level;		// breakpoints for each level refine
+			AdaptiveRefineList<Element, Node>(elelist, refine_level, elements, nodes, nnod, nface);
+			MeshRefine2D<Element, Node>(elements, nodes, elelist, refine_level, ndim, neqn, nnod, iter, nface);
+			cout << "Done adapting mesh" << endl;
+			/// MESH REFINEMENT ///
+		}
+		
 		for_each(nodes.begin(), nodes.end(), NodeUnpack<Node *>());								/// extract nodes
 
 		for_each(nodes.begin(), nodes.end(), NodeCheck<Node *>());								/// check for invalid nodal values
-
-//		if (iter % 10 == 0)	config->Save(elements, nodes, iter, init.key);
+		
+		if (iter == 1)
+		{
+			config->Save(elements, nodes, iter, init.key);						// Only saves nodes
+			cout << "nele: " << elements.size() << endl;
+			cout << "nnod: " << nodes.size() << endl;
+		}
+		
+//		if (iter % 10 == 0)	config->Save(elements, nodes, iter, init.key);						// Only saves nodes
 
 		CFL<Element *>(elements, cfl, dt);														/// Update CFL number
 
@@ -133,9 +151,9 @@ timer_l.start();
 		//if (iter % 25 == 0 ) 
 		config->Output(elements, nodes, iter, t, true);					/// Tecplot output, deprecate for Save
 
-
+		/* 
 		// extrap consvar within elements for "6" BC
-		// 2D
+		// 2D quad only FIXME does not work for tri
 //		cout << "extrap" << endl;
 		for (int e = 0; e < elements.size(); e++)
 		{
@@ -168,6 +186,7 @@ timer_l.start();
 				}
 			}
 		}
+		*/
 
 		if (ndim == 3)
 		{
@@ -185,20 +204,13 @@ timer_l.start();
 			for_each(elements.begin(), elements.end(), std::tr1::ref(fdv));
 		}
 
-		for (int i = 0; i < elements.size(); i++)
-		{
-	//		cout << elements[i]->R << endl << elements[i]->rhs << endl;
-		}
-
-//		for_each(elements.begin(), elements.end(), std::tr1::ref(fdv/*[dt]*/));
-
 //		for_each(elements.begin(), elements.end(), AxisymmetricFlow<Element *>(neqn, nnod));	/// Axisym 2pi
 
 		config->gmres->iterate(elements);														/// Solve via GMRES
 		config->gmres->update(nodes);
 
 		for_each(nodes.begin(), nodes.end(), EnforceBC<Node *>(ndim));							/// Enforce Dirichlet boundary conditions
-		config->RMSErr(t, iter);																/// Calculate residuals
+//		config->RMSErr(t, iter);																/// Calculate residuals FIXME for adap grids
 		
 		t += dt;
 		

@@ -9,6 +9,13 @@
 #include "Utility/IO/ASCIItoBinary/SaveBinary.h"
 //#include "MPI_Save.h"
 
+#include "Utility/MPI_Breakdown.h"
+
+#include <iomanip>
+#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include "boost/filesystem/fstream.hpp"   // filestreams, makes avail to other classes and may cause problems?
+
+
 struct MPIBinaryConfiguration : ConfigurationBase
 {
 	MPIBinaryConfiguration(int argc, char * argv[], std::vector<Element *> & elements, std::vector<Node *> & nodes, dictionary & key, LoadBinaryData & init)
@@ -59,8 +66,8 @@ struct MPIBinaryConfiguration : ConfigurationBase
 		}
 		mbd.close();
 
-		int elemin = data[0];
-		int elemax = data[1];
+		elemin = data[0];
+		elemax = data[1];
 		
 		nodemin = data[2];
 		nodemax = data[3];
@@ -114,10 +121,14 @@ struct MPIBinaryConfiguration : ConfigurationBase
 	{
 		std::string fname = "nodes"  + to_string<int>(iter);
 		// need to save using MPI functionale
-		// just need to save nodes - element, face correlations remains the same
+		// just need to save nodes - element, face correlations remains the same, EXCEPT when you grid refine!
 		// eventually dump an updated control file too
 
-		// Nodes -> 3d node
+		// TODO FIXME note that these node_t, ele_t are defined in LoadBinary, use those!
+
+		///////////////////
+		// Nodes -> 2d node
+		///////////////////
 		MPI_Datatype TType;		/// node data xfer
 
 		if ( ndim == 3)
@@ -128,22 +139,22 @@ struct MPIBinaryConfiguration : ConfigurationBase
 			MPI_Type_contiguous(4, MPI_DOUBLE, &TType);
 		MPI_Type_commit(&TType);
 
-		struct node_t
+		struct node_t			// TODO check i think we need to make this x[ndim]
 		{
-			double x[3];
+			double x[2];
 			double rho;
-			double v[3];
+			double v[2];
 			double T;
 		};
 
 		cout << "writing nodes to Save file " << rank << endl;
-		int nele = nodes.size(); // 10 + rank;					// elements.size()
+		int nele = nodes.size(); // 10 + rank;					// nodes.size(), nele should be nnod but this var is taken
 		cout << "writing  " << max << " nodes "  << nele << endl;
-		nele = max;
+//		nele = max;
 		node_t * buf;
 		buf = new node_t[nele];				// elements are unique
 
-		for (int i = 0; i < nele; i++)		// get data from elements
+		for (int i = 0; i < nele; i++)		// get data from nodes
 		{
 			buf[i].rho = nodes[i]->rho;
 			buf[i].T   = nodes[i]->T;
@@ -153,8 +164,6 @@ struct MPIBinaryConfiguration : ConfigurationBase
 				buf[i].v[j] = nodes[i]->v(j);
 			}
 		}
-//		for (int i = 0; i < nele; i++)		// get data from elements
-//			buf[i].rho = 10*rank + i;
 
 		cout << "opening file" << endl;
 		int size = 0;
@@ -168,12 +177,151 @@ struct MPIBinaryConfiguration : ConfigurationBase
 
 		cout << "writing shared" << endl;
 		MPI_File_seek(fh, sizeof(node_t)* nodes[0]->number /*nele*rank*/, MPI_SEEK_SET);			// naive as we have overlapping nodes use node iter
-		MPI_File_write(fh, buf, nele, TType, MPI_STATUS_IGNORE);									// fixme status object unclear 
-//		fh.Write_all(buf, nele, TType);
+		MPI_File_write(fh, buf, nele, TType, MPI_STATUS_IGNORE); 
 
 		cout << "closing" << endl;
 		MPI_File_close(&fh);
 		cout << "done" << endl;
+
+		/////////////////
+		// elements
+		/////////////////
+		//std::string 
+		
+		fname = "elements" + to_string<int>(iter);
+
+		if (ndim == 3)
+			MPI_Type_contiguous(24, MPI_INT, &TType);
+		else if (ndim == 2)
+			MPI_Type_contiguous(8, MPI_INT, &TType);
+		else if (ndim == 1)
+			MPI_Type_contiguous(2, MPI_INT, &TType);
+		MPI_Type_commit(&TType);
+
+		struct ele_t
+		{
+			int node[4];
+			int bc[4];
+		};
+		
+		cout << "writing elements to Save file " << rank << endl;
+		nele = elements.size(); // 10 + rank;					// nodes.size(), nele should be nnod but this var is taken
+		cout << "writing  " << max << " nodes " << nele << endl;
+		//nele = max;
+		ele_t * ebuf;
+		ebuf = new ele_t[nele];				// elements are unique
+
+		for (int i = 0; i < nele; i++)		// get data from nodes
+		{
+			ebuf[i].bc[0] = 0;
+			ebuf[i].bc[1] = 0;
+			ebuf[i].bc[2] = 0;
+			ebuf[i].bc[3] = 0;
+
+			for (int j = 0; j < nnod; j++)		// nodes
+			{
+				ebuf[i].node[j] = elements[i]->node[j]->number;
+			}
+			for (int j = 0; j < elements[i]->face.size(); j++)		// faces fixme
+			{
+				ebuf[i].bc[elements[i]->face[j]->face] = elements[i]->face[j]->bc;
+			}
+		}
+
+		cout << "opening file" << endl;
+		size = 0;
+		MPI_Allreduce(&elemax, &size, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
+
+//		MPI_File fh;
+		MPI_File_open(MPI_COMM_WORLD,
+			fname.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fh);
+
+		MPI_File_set_size(fh, size * sizeof(ele_t));
+
+		cout << "writing shared" << endl;
+		MPI_File_seek(fh, sizeof(ele_t)* elements[0]->number /*nele*rank*/, MPI_SEEK_SET);			// naive as we have overlapping nodes use node iter
+		MPI_File_write(fh, ebuf, nele, TType, MPI_STATUS_IGNORE);
+
+		cout << "closing" << endl;
+		MPI_File_close(&fh);
+		cout << "done" << endl;
+
+		/*	void add_adap(std::vector<double> & data)
+		{
+			// 0 - element
+			// 1 - adap flag
+			// 2 - tensor data
+			if (data.size() == 0)
+				return;
+
+			int elno = (int)data[0];
+			bool adap = (bool)data[1];
+			int refine_level = (int)data[2];
+
+			elements[ elno ]->adap = adap;
+			elements[ elno ]->refine_level = refine_level;
+
+			std::string datastring = "double ";
+			for (int i = 4; i < data.size(); i++)			// this all is hackish, get working then fix.
+			{												// might make more sense to make a string ver. of read
+				datastring += to_string<double>(data[i]);	// and have the stream version call it once it stringsplits
+				datastring += " ";
+			}
+			std::istringstream is(datastring);
+
+			read( is, elements[ elno ]->Hnm);
+		}
+*/
+		// note: this (and grid refinement) is NOT yet mpi capable fixme
+		boost::filesystem::ofstream adapfile("adap");
+		for (int i = 0; i < nele; i++)		// get data from nodes
+		{
+			if (elements[i]->adap) // are adap flags being set???
+			{
+				// write file
+				adapfile << elements[i]->number << " "
+					<< elements[i]->adap << " "
+					<< elements[i]->refine_level << " "
+					<< "double "						// FIXME double probably was when i was thinking of converting to single, 2/8/8 unclear
+					<< ndim << " "
+					<< nnod << " "
+					<< nnod << " ";
+				for (int j = 0; j < nnod*nnod; j++)
+				{
+					adapfile << elements[i]->Hnm(j) << " ";
+				}
+				adapfile << endl;
+
+			}
+		}
+		adapfile.close();
+/*
+		boost::filesystem::ofstream facefile("faces");
+		for (int i = 0; i < elements.size(); i++)
+		{
+			if (elements[i]->face.size() != 0)
+			{
+				for (int j = 0; j < elements[i]->face.size(); j++)
+				{
+					facefile << i << " "
+							 << elements[i]->face[j]->face << " "
+							 << elements[i]->face[j]->bc   << " ";
+					
+					for (int k = 0; k < 2; k++)								// fixme: 2d specific
+					{
+						facefile << elements[i]->face[j]->n(k) << " ";		// fixme: tensor writer w/o commas
+					}
+
+					facefile << endl;
+				}
+			}
+		}
+		facefile.close();
+*/
+		// not sure if this should work for multiple processes
+		std::string path = ".";
+		for(int i=1; i<9;i++)
+			MPI_Breakdown(elements, nodes, neqn, nnod, path, i);
 	}
 	
 	int size;
@@ -182,6 +330,7 @@ struct MPIBinaryConfiguration : ConfigurationBase
 	int nedgenode_left;
 	int nodesize;
 	int nodemin, nodemax;
+	int elemin, elemax;
 	std::string path;
 
 	int max;				// int equiv of max iterator

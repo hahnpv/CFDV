@@ -116,7 +116,7 @@ struct MPI_TecplotOut
 			{
 				//// RECV BLOCK ////
 				int num_msg_recv = 0;
-				MPI_Recv( &num_msg_recv, 1, MPI_INT, k+1, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);  // FIXME unclear if IGNORE flag is right
+				MPI_Recv( &num_msg_recv, 1, MPI_INT, k+1, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 				for (int j = 0; j < num_msg_recv; j++)
 				{
 					elem e;

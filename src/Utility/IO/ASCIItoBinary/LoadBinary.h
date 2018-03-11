@@ -282,7 +282,14 @@ struct LoadBinaryData
 
 			Element * e = new Element((int)nnod, (int)neqn, (int)ndim);
 			e->number = i;
-
+			/*
+			// HAX missing BC 
+			if (i == 1409)
+			{
+				cout << "HAX IN LoadBinary.h" << endl;
+				ele.bc[3] = -1.;
+			}
+			*/
 //			cout << "ele.node: " << ele.node[0] << " " << ele.node[1] << endl;
 			for (int j=0; j < nnod; j++)
 			{
@@ -296,6 +303,8 @@ struct LoadBinaryData
 					add_face( e, j, ele.bc[j]);
 				}
 			}
+
+
 			elements.push_back( e);
 		}
 

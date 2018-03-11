@@ -187,7 +187,7 @@ struct MPI_GMRES : public GMRESbase
 						cout << "mag < tol, breaking..." << endl;			// need to msg other ranks!
 						stat = false;
 				}
-				MPI_Bcast(&stat,1,MPI_C_BOOL,0, MPI_COMM_WORLD);				// fixme was MPI::BOOL doesn't exist in C api
+				MPI_Bcast(&stat,1,MPI_C_BOOL,0, MPI_COMM_WORLD);
 				if ( !stat)
 				{
 					cout << "tolerence met msg received in rank " << rank << endl;

@@ -38,11 +38,11 @@ template<class T> struct CalcLength : public unary_function<T, void>
 		e->area = 0;
 
 //		ele_t eletype = get_ele_t(ndim,nnod);
-/*		if (ndim == 2 && nnod == 3)
+		if (ndim == 2 && nnod == 3)
 		{
 			gq.two(this,&CalcLength::updateTri);
 		}
-		else*/ if (ndim == 2)
+		else if (ndim == 2)
 		{
 			gq.two(this,&CalcLength::update2D);
 		}
