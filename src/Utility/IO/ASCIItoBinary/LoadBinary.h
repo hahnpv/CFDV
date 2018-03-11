@@ -340,7 +340,7 @@ struct LoadBinaryData
 		elements[ elno ]->refine_level = refine_level;
 
 		std::string datastring = "double ";
-		for (int i = 4; i < data.size(); i++)			// this all is hackish, get working then fix.
+		for (unsigned int i = 4; i < data.size(); i++)			// this all is hackish, get working then fix.
 		{												// might make more sense to make a string ver. of read
 			datastring += to_string<double>(data[i]);	// and have the stream version call it once it stringsplits
 			datastring += " ";

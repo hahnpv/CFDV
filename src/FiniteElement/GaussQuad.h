@@ -134,7 +134,7 @@ public:
 			{
 				p(1)=1.0;
 				p(2)=0.0;
-				for (int j=1; j <= N; j++)
+				for (unsigned int j=1; j <= N; j++)
 				{
 					p(3)=p(2);
 					p(2)=p(1);
@@ -149,7 +149,7 @@ public:
 		   w(i-1)=2.0*xl/((1.0-z*z)*p(0)*p(0));
 		   w((unsigned int)N+1-i-1)=w(i-1);							// -1 c++ count
 		}
-		for( int i=0; i < N; i++)
+		for(unsigned int i=0; i < N; i++)
 		{
 			if(abs(zeta(i)) < eps) 
 				zeta(i)=0.0;

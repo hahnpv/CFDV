@@ -49,7 +49,7 @@ struct MPI_TecplotOut
 									// nedgenode_left, this is nedgenode_right.
 		// build vec
 		// nodes
-		for (int i = delta; i < Nodes.size(); i++)
+		for (unsigned int i = delta; i < Nodes.size(); i++)
 		{
 			pnode n;
 			n.number = Nodes[i]->number;
@@ -73,7 +73,7 @@ struct MPI_TecplotOut
 		}
 
 		// elements
-		for (int i = 0; i < Elements.size(); i++)
+		for (unsigned int i = 0; i < Elements.size(); i++)
 		{
 			elem e;
 			e.number = Elements[i]->number;
@@ -141,7 +141,7 @@ struct MPI_TecplotOut
 
 			if (ndim == 1)
 			{
-				for( int n = 0; n < nodes.size(); n++)
+				for(unsigned int n = 0; n < nodes.size(); n++)
 				{
 					tout << nodes[n].x << " " << nodes[n].y << " " << nodes[n].rho << " " << nodes[n].u << " " << nodes[n].T << " " << nodes[n].p << endl;
 				}
@@ -288,7 +288,7 @@ struct MPI_TecplotOut
 			// correlation
 			for (unsigned int e=0; e < elements.size(); e++)
 			{
-				for(unsigned int n=0; n < nnod; n++)
+				for(int n=0; n < nnod; n++)
 				{
 					tout << elements[e].node[n]+1 << " ";
 				}

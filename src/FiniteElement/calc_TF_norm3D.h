@@ -37,11 +37,11 @@ struct TFNorm3D
 			Tensor<double, 2> allnode(8,3);
 			allnode.clear();
 		
-			for (int N = 0; N < e->Hnm.imax(); N++)
+			for (unsigned int N = 0; N < e->Hnm.imax(); N++)
 			{
-				for (int M = 0; M < e->Hnm.jmax(); M++)
+				for (unsigned int M = 0; M < e->Hnm.jmax(); M++)
 				{
-					for (int j = 0; j < 3; j++)
+					for (unsigned int j = 0; j < 3; j++)
 					{
 //						dPxiHnm(M, j) += dPxi(N, j) * Hnm(N, M);
 						allnode(N, j) += e->Hnm(N, M) * e->node[M]->x(j);

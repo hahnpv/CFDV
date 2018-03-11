@@ -330,11 +330,11 @@ matrix(1, 4, 0)=u*matrix(1, 1, 0)+v*matrix(1, 2, 0)+w*matrix(1, 3, 0) + (denom*(
 
 	  // test
 	  reinv = 1.0/thermo.creyn;
-	  for (int i = 0; i < matrix.imax(); i++)
+	  for (unsigned int i = 0; i < matrix.imax(); i++)
 	  {
-		  for (int j = 0; j < matrix.jmax(); j++)
+		  for (unsigned int j = 0; j < matrix.jmax(); j++)
 		  {
-			  for (int k = 0; k < matrix.kmax(); k++)
+			  for (unsigned int k = 0; k < matrix.kmax(); k++)
 			  {
 					matrix(i, j, k) *= reinv;
 			  }
@@ -461,13 +461,13 @@ matrix(1, 4, 0)=u*matrix(1, 1, 0)+v*matrix(1, 2, 0)+w*matrix(1, 3, 0) + (denom*(
 
 	  	  // test
 	  reinv = 1.0/thermo.creyn;
-	  for (int i = 0; i < matrix.imax(); i++)
+	  for (unsigned int i = 0; i < matrix.imax(); i++)
 	  {
-		  for (int j = 0; j < matrix.jmax(); j++)
+		  for (unsigned int j = 0; j < matrix.jmax(); j++)
 		  {
-			  for (int k = 0; k < matrix.kmax(); k++)
+			  for (unsigned int k = 0; k < matrix.kmax(); k++)
 			  {
-				  for (int l = 0; l < matrix.lmax(); l++)
+				  for (unsigned int l = 0; l < matrix.lmax(); l++)
 				  {
 					matrix(i, j, k, l) *= reinv;
 				  }

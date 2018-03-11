@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cmath>
 #include "RMSBase.h"
 using namespace std;
 

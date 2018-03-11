@@ -891,13 +891,13 @@ template<class Elements, class Nodes> struct MeshRefine2D
 		PhiHnm.clear();
 		dPxiHnm.clear();
 
-		for (int N = 0; N < Phi.imax(); N++)
+		for (unsigned int N = 0; N < Phi.imax(); N++)
 		{
-			for (int M = 0; M < Phi.imax(); M++)
+			for (unsigned int M = 0; M < Phi.imax(); M++)
 			{
 				PhiHnm(M)  += Phi(N) * Hnm(N, M);
 
-				for (int j = 0; j < dPxi.jmax(); j++)
+				for (unsigned int j = 0; j < dPxi.jmax(); j++)
 				{
 					dPxiHnm(M, j) += dPxi(N, j) * Hnm(N, M);
 				}

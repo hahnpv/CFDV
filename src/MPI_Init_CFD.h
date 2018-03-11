@@ -10,9 +10,9 @@
 using namespace std;
 struct MPI_init_CFD
 {
-		int nodemin;
-		int nodemax;
-		int neqn;
+		unsigned int nodemin;
+		unsigned int nodemax;
+		unsigned int neqn;
 	MPI_init_CFD(int argc, char * argv[], std::vector<Element *> & elements, std::vector<Node *> & nodes, int neqn, int nnod, dictionary & key)
 		: elements(elements),	// for functions
 		  nnod(nnod),
@@ -76,7 +76,7 @@ struct MPI_init_CFD
 		// Keep nodes relevant to elements
 		nodemin = elements[0]->node[0]->number;
 		nodemax = elements[0]->node[0]->number;
-		for (int i = 0; i < elements.size(); i++)
+		for (unsigned int i = 0; i < elements.size(); i++)
 		{
 			for (int j = 0; j < nnod; j++)
 			{

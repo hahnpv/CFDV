@@ -47,4 +47,4 @@ if(MPI_LINK_FLAGS)
 endif()
 
 # TODO clean up code to compile without -fpermissive
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")

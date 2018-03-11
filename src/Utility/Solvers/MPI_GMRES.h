@@ -86,31 +86,32 @@ struct MPI_GMRES : public GMRESbase
 		/// MPI Datatypes
 
 		DataStruct ds;
-		MPI_Aint displ = (int)(&ds.data) - (int)(&ds);
+		MPI_Aint displ = (size_t)(&ds.data) - (size_t)(&ds);
 
 		int blocklengths[3] = {1,5,1};									// 3 int's, 1 double, 1 eostruct
 		MPI_Datatype types[3] = {  MPI_INT, MPI_DOUBLE, MPI_UB };		// datatypes in order
+		MPI_Aint lb;
 		MPI_Aint intex;
 		MPI_Aint displacements[3];								// memory offsets for struct
-		MPI_Type_extent(MPI_INT, &intex);						// memory offset from int's to double, dont need double since its last
+		MPI_Type_get_extent(MPI_INT, &lb, &intex);						// memory offset from int's to double, dont need double since its last
 		displacements[0] = 0;
 		displacements[1] = displ;
 		displacements[2] = sizeof( ds );
-		MPI_Type_struct(3, blocklengths, displacements, types, &DataStructType);
+		MPI_Type_create_struct(3, blocklengths, displacements, types, &DataStructType);
 		MPI_Type_commit(&DataStructType);
 
 		// Av type
 		DataStructAv dsAv;
-		displ = (int)(&dsAv.data) - (int)(&dsAv);
+		displ = (size_t)(&dsAv.data) - (size_t)(&dsAv);
 
 		int blocklengthss[3] = {3,5,1};									// 3 int's, 1 double, 1 eostruct
 		MPI_Datatype typess[3] = {  MPI_INT, MPI_DOUBLE, MPI_UB };		// datatypes in order
-		MPI_Aint displacementss[3];								// memory offsets for struct
-		MPI_Type_extent(MPI_INT, &intex);						// memory offset from int's to double, dont need double since its last
+		MPI_Aint displacementss[3];										// memory offsets for struct
+		MPI_Type_get_extent(MPI_INT, &lb, &intex);						// memory offset from int's to double, dont need double since its last
 		displacementss[0] = 0;
 		displacementss[1] = displ;
 		displacementss[2] = sizeof( ds );
-		MPI_Type_struct(3, blocklengthss, displacementss, typess, &DataStructAvType);
+		MPI_Type_create_struct(3, blocklengthss, displacementss, typess, &DataStructAvType);
 		MPI_Type_commit(&DataStructAvType);
 
 		MPI_Type_contiguous(7, MPI_DOUBLE, &NodeStructType);
@@ -244,7 +245,7 @@ struct MPI_GMRES : public GMRESbase
 			}
 			else
 			{
-				for (unsigned int k = 0; k < neqn; k++)
+				for (int k = 0; k < neqn; k++)
 				{
 					nodes[j]->U0(k) = nodes[j]->U(k);
 					nodes[j]->U(k) += du( neqn*(node_number-delta) + k );
@@ -291,7 +292,7 @@ struct MPI_GMRES : public GMRESbase
 			int node = (int)nodeList[j].node;
 			int index = (int)nodeList[j].index;
 
-			for (unsigned int k=0; k < neqn; k++)
+			for (int k=0; k < neqn; k++)
 			{
 				nodes[index]->U0(k) = nodes[index]->U(k);
 				nodes[index]->U(k) += nodeList[j].data[k];
@@ -390,7 +391,7 @@ private:
 		// this form repeats a lot: we should either be able to 
 		// (a) make a generic DataStruct in prefetch() and just fill in data.
 		// (b) make a function at least to abstract this out.
-		for (int i = 0; i < nodesUp.size(); i++)
+		for (unsigned int i = 0; i < nodesUp.size(); i++)
 		{
 			int elem = nodesUp[i][0];
 			int node = nodesUp[i][1];
@@ -404,7 +405,7 @@ private:
 			}
 			dataUp.push_back( dat);
 		}
-		for (int i = 0; i < nodesDown.size(); i++)
+		for (unsigned int i = 0; i < nodesDown.size(); i++)
 		{
 			int elem = nodesDown[i][0];
 			int node = nodesDown[i][1];
@@ -512,7 +513,7 @@ private:
 			}
 		}
 
-		for (int j = 0; j < duList.size(); j++)
+		for (unsigned int j = 0; j < duList.size(); j++)
 		{
 			int y    = (int)duList[j].locnode;
 			int elno = (int)duList[j].elno;
@@ -639,7 +640,7 @@ private:
 			}
 		}
 
-		for (int j = 0; j < duList.size(); j++)
+		for (unsigned int j = 0; j < duList.size(); j++)
 		{
 			int y    = (int)duList[j].locnode;
 			int elno = (int)duList[j].elno;

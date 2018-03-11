@@ -19,8 +19,8 @@ struct MPI_Breakdown
 		ofstream fout((path + "//MPIBreakdown").c_str(),ios::out);
 		fout.close();
 	}
-	std::vector<int> nodemin;
-	std::vector<int> nodemax;
+	std::vector<unsigned int> nodemin;
+	std::vector<unsigned int> nodemax;
 	std::vector<int> min;
 	std::vector<int> max;
 	std::string path;
@@ -96,7 +96,7 @@ struct MPI_Breakdown
 			max = elements.size();
 	}
 
-	void get_nodes(int elemin, int elemax, int & min, int & max)
+	void get_nodes(int elemin, int elemax, unsigned int & min, unsigned int & max)
 	{
 			// This search is fine, if we aggregate it from the elements we are loading.
 		// Keep nodes relevant to elements

@@ -1,9 +1,6 @@
 #pragma once
 
-// Windows-specific precision timer
-// need to add in Linux code and #ifdef block it by machine type
-
-
+// Platform indpendant precision timer
 
 #ifdef __GNUC__
 	#include <sys/time.h>
@@ -17,7 +14,7 @@
 
 //		PrecisionTimer timer;
 //		timer.start();
-//		do something		
+//		do something
 //		timer.stop();
 //		cout << "execution time: " << timer.read() << endl;
 
@@ -26,7 +23,7 @@
 #ifdef __GNUC__
 	struct PT
 	{
-		LinuxPT() {};
+		PT() {};
 		void start()
 		{
 			time0 = get_time();
@@ -41,10 +38,10 @@
 		{
 			return (time1 - time0) * 1E-9;
 		}
-		
+
 	private:
 		unsigned long long get_time()
-		{	
+		{
 			#define rdtsc(low,high) \
 				__asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
 
@@ -67,12 +64,12 @@
 
 		void start()
 		{
-			QueryPerformanceCounter(&tick1);	
+			QueryPerformanceCounter(&tick1);
 		}
 
 		void stop()
 		{
-			QueryPerformanceCounter(&tick2);	
+			QueryPerformanceCounter(&tick2);
 		}
 
 			// Returns the time in seconds
@@ -96,21 +93,17 @@ public:
 
 	void start()
 	{
-//		QueryPerformanceCounter(&tick1);	
 		timer.start();
 	}
 
 	void stop()
 	{
-//		QueryPerformanceCounter(&tick2);	
 		timer.stop();
 	}
 
 		// Returns the time in seconds
 	double read()
 	{
-//		return (double)(tick2.QuadPart - tick1.QuadPart) / (double)ticks_per_second.QuadPart;
-//		return 0;
 		return timer.read();
 	}
 

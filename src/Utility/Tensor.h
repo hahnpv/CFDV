@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 // using namespace boost;
@@ -29,7 +30,7 @@ struct RefCnt
 
 	void clear()
 	{
-		for (unsigned int i=0; i < size; i++)
+		for (int i=0; i < size; i++)
 		{
 			data[i] = 0;
 		}
@@ -154,7 +155,7 @@ template<class T>
 T dot(Tensor<T, 1> & t1, Tensor<T, 1> & t2)
 {
 	T result = 0;
-	for (int i=0; i < t1.imax(); i++)
+	for (unsigned int i=0; i < t1.imax(); i++)
 	{
 		result += t1(i) * t2(i);
 	}
@@ -165,7 +166,7 @@ T dot(Tensor<T, 1> & t1, Tensor<T, 1> & t2)
 template<class T>
 T mag(Tensor<T, 1> & t)
 {
-	return sqrt( dot( t, t) );
+	return std::sqrt( dot( t, t) );
 }
 
 	// Dot product for a 2D tensor, inner indice
@@ -184,7 +185,7 @@ T dot(Tensor<T, 2> & t1, unsigned int j1, Tensor<T, 2> & t2, unsigned int j2)
 template<class T>
 T mag(Tensor<T, 2> & t, int j)
 {
-	return sqrt( dot(t,j, t,j) );
+	return std::sqrt( dot(t,j, t,j) );
 }
 
 	// Cross product for 2 1D tensors, size 3.
@@ -238,7 +239,7 @@ T sum(Tensor<T,ndim> & t)
 	int sum = 0;
 	for (int i = 0; i < t.ref->size(); i++)
 	{
-		sum += t.ref->data[i];	
+		sum += t.ref->data[i];
 	}
 	return sum;
 }
@@ -250,7 +251,7 @@ T aggregate(Tensor<T,ndim> & t)
 	T sum = 1.0;
 	for (int i = 0; i < t.ref->size; i++)
 	{
-		sum *= t.ref->data[i];	
+		sum *= t.ref->data[i];
 	}
 
 	return sum;
@@ -260,7 +261,7 @@ Tensor<double, 1> unit(Tensor<double,1> & t)
 {
 	Tensor<double, 1> retval( t.imax() );
 	double length = mag(t);
-	for (int i = 0; i < t.imax(); i++)
+	for (unsigned int i = 0; i < t.imax(); i++)
 		retval(i) = t(i) / length;
 	return retval;
 }

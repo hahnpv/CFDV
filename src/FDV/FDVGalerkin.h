@@ -324,7 +324,7 @@ struct FDVGalerkin : public unary_function<T, void>
 
 		}
 			// NUMERICAL DIFFUSION TERM //
-
+		
 			// DISCONTINUITY CAPTURING // FIXME this was commented out... verify correctness
 		Tensor<double, 1> A(ndim);
 		Tensor<double, 1> v(ndim);			// v_i^b

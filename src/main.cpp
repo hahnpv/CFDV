@@ -2,8 +2,9 @@
 
 #ifdef __GNUC__
 	#include <tr1/functional>			/// ref wrapper (STL TR1 gcc)
+	using namespace std::tr1;
 #else
-	#include <functional>				/// ref wrapper (STL TR1 msvc)
+	#include <functional>					/// ref wrapper (STL TR1 msvc)
 #endif
 
 #include <algorithm>					/// for_each
@@ -96,7 +97,7 @@ int main(int argc, char *argv[])
 
 	cout << "calc length" << endl;
 	CalcLength<Element *> cl(ndim, nnod);
-	for_each(elements.begin(), elements.end(), std::tr1::ref( cl));		// calculate characteristic length
+	for_each(elements.begin(), elements.end(), ref( cl));		// calculate characteristic length
 
 	// try to move FDV up here, N-S selector struct?
 
@@ -119,7 +120,7 @@ timer_l.start();
 		timer.reset();
 
 		for_each(elements.begin(), elements.end(), ClearElement<Element *>());					/// Clear matrices in each element
-/*		
+		/*
 		if(iter==1)
 		{ 
 			/// MESH REFINEMENT ///
@@ -130,18 +131,18 @@ timer_l.start();
 			cout << "Done adapting mesh" << endl;
 			/// MESH REFINEMENT ///
 		}
-*/		
+		*/
 		for_each(nodes.begin(), nodes.end(), NodeUnpack<Node *>());								/// extract nodes
 
 		for_each(nodes.begin(), nodes.end(), NodeCheck<Node *>());								/// check for invalid nodal values
-/*		
+		/*
 		if (iter == 1)
 		{
 			config->Save(elements, nodes, iter, init.key);						// Only saves nodes
 			cout << "nele: " << elements.size() << endl;
 			cout << "nnod: " << nodes.size() << endl;
 		}
-*/		
+		*/
 //		if (iter % 10 == 0)	config->Save(elements, nodes, iter, init.key);						// Only saves nodes
 
 		CFL<Element *>(elements, cfl, dt);														/// Update CFL number
@@ -191,17 +192,17 @@ timer_l.start();
 		if (ndim == 3)
 		{
 			FDVGalerkin<Element *, NavierStokes3D> fdv( nnod, neqn, ndim, nbnod, dt);
-			for_each(elements.begin(), elements.end(), std::tr1::ref(fdv));
+			for_each(elements.begin(), elements.end(), ref(fdv));
 		}
 		else if (ndim == 2)
 		{
 			FDVGalerkin<Element *, NavierStokes2D> fdv( nnod, neqn, ndim, nbnod, dt);
-			for_each(elements.begin(), elements.end(), std::tr1::ref(fdv));
+			for_each(elements.begin(), elements.end(), ref(fdv));
 		}
 		else if (ndim == 1)
 		{
 			FDVGalerkin<Element *, NavierStokes1D> fdv( nnod, neqn, ndim, nbnod, dt);
-			for_each(elements.begin(), elements.end(), std::tr1::ref(fdv));
+			for_each(elements.begin(), elements.end(), ref(fdv));
 		}
 
 //		for_each(elements.begin(), elements.end(), AxisymmetricFlow<Element *>(neqn, nnod));	/// Axisym 2pi

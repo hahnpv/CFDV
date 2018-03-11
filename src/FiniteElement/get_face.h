@@ -216,6 +216,7 @@ int get_opposing_face_3d( int f)
 	{
 		cout << "No match in get_opposing_face_3d: " << f << endl;
 		cin.get();
+		return -1;
 	}
 }
 
@@ -405,6 +406,10 @@ Tensor<int, 1> get_nodes_from_face_tri( int f)
 			retval(0) = face;
 			return retval;
 		}
+		else {
+			cout << "Undefined element type: " << ele_type << endl;
+			return -1;
+		}
 	}
 
 	int get_face_1d( Tensor<int, 1> &n)
@@ -430,5 +435,10 @@ Tensor<int, 1> get_nodes_from_face_tri( int f)
 		else if (ele_type == iso1d)
 		{
 			return get_face_1d( n);
+		}
+		else
+		{
+			cout << "Undefined element type " << ele_type << endl;
+			return -1;
 		}
 	}

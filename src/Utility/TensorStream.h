@@ -11,7 +11,7 @@
 template<class T>
 std::ostream& operator << ( std::ostream& os, Tensor<T, 1> & t ) 
 {
-	for (int i=0; i < t.imax(); i++)
+	for (unsigned int i=0; i < t.imax(); i++)
 	    os << t(i) << ", ";
 
     return os;
@@ -21,9 +21,9 @@ template<class T>
 std::ostream& operator << ( std::ostream& os, Tensor<T, 2> & t ) 
 {
 
-	for (int i = 0; i < t.imax(); i++)
+	for (unsigned int i = 0; i < t.imax(); i++)
 	{
-		for (int j = 0; j < t.jmax(); j++)
+		for (unsigned int j = 0; j < t.jmax(); j++)
 		{
 			os << t(i, j) << ", ";
 		}

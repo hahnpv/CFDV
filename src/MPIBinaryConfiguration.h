@@ -15,6 +15,7 @@
 #include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
 #include "boost/filesystem/fstream.hpp"   // filestreams, makes avail to other classes and may cause problems?
 
+#include <functional> // std::ref
 
 struct MPIBinaryConfiguration : ConfigurationBase
 {
@@ -56,7 +57,7 @@ struct MPIBinaryConfiguration : ConfigurationBase
 					break;
 
 					cout << rank << " data: ";
-					for (int i = 0; i < data.size(); i++)
+					for (unsigned int i = 0; i < data.size(); i++)
 						cout << data[i] << " ";
 					cout << endl;
 				}
@@ -114,7 +115,7 @@ struct MPIBinaryConfiguration : ConfigurationBase
 	void RMSErr(double t, int iter)
 	{
 		MPI_RMSError<Node *> rmserr("RMSError.txt", t, iter, neqn);
-		for_each(NodeIteratorStart, NodeIteratorEnd, std::tr1::ref(rmserr));
+		for_each(NodeIteratorStart, NodeIteratorEnd, ref(rmserr));
 	}
 
 	void Save(std::vector<Element *> &elements, std::vector<Node *> &nodes, int iter, dictionary & key)
@@ -222,7 +223,7 @@ struct MPIBinaryConfiguration : ConfigurationBase
 			{
 				ebuf[i].node[j] = elements[i]->node[j]->number;
 			}
-			for (int j = 0; j < elements[i]->face.size(); j++)		// faces fixme
+			for (unsigned int j = 0; j < elements[i]->face.size(); j++)		// faces fixme
 			{
 				ebuf[i].bc[elements[i]->face[j]->face] = elements[i]->face[j]->bc;
 			}
