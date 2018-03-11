@@ -119,7 +119,7 @@ timer_l.start();
 		timer.reset();
 
 		for_each(elements.begin(), elements.end(), ClearElement<Element *>());					/// Clear matrices in each element
-		
+/*		
 		if(iter==1)
 		{ 
 			/// MESH REFINEMENT ///
@@ -130,18 +130,18 @@ timer_l.start();
 			cout << "Done adapting mesh" << endl;
 			/// MESH REFINEMENT ///
 		}
-		
+*/		
 		for_each(nodes.begin(), nodes.end(), NodeUnpack<Node *>());								/// extract nodes
 
 		for_each(nodes.begin(), nodes.end(), NodeCheck<Node *>());								/// check for invalid nodal values
-		
+/*		
 		if (iter == 1)
 		{
 			config->Save(elements, nodes, iter, init.key);						// Only saves nodes
 			cout << "nele: " << elements.size() << endl;
 			cout << "nnod: " << nodes.size() << endl;
 		}
-		
+*/		
 //		if (iter % 10 == 0)	config->Save(elements, nodes, iter, init.key);						// Only saves nodes
 
 		CFL<Element *>(elements, cfl, dt);														/// Update CFL number
