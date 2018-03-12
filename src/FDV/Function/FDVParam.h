@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Thermo.h"
+
 // Calculate the FDV parameters
 
 template<class E> struct FDVParam : public unary_function<E, void>

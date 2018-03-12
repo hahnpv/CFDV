@@ -109,7 +109,7 @@ struct MPIBinaryConfiguration : ConfigurationBase
 
 	void Output(std::vector<Element *> &elements, std::vector<Node *> &nodes, int iter, double time, bool ele_data)
 	{
-		MPI_TecplotOut(elements, nodes, iter, ndim, time, false, rank,offset,size, /*nedgenode,*/ nedgenode_left, nnod, neqn);
+		MPI_TecplotOut(elements, nodes, iter, ndim, time, ele_data , rank, offset, size, /*nedgenode,*/ nedgenode_left, nnod, neqn);
 	}
 
 	void RMSErr(double t, int iter)
@@ -120,7 +120,9 @@ struct MPIBinaryConfiguration : ConfigurationBase
 
 	void Save(std::vector<Element *> &elements, std::vector<Node *> &nodes, int iter, dictionary & key)
 	{
-		std::string fname = "nodes"  + to_string<int>(iter);
+		std::string savepath = path + "//" + to_string<int>(iter) + "//";
+		boost::filesystem::create_directory(savepath);
+		std::string fname = savepath + "binarynodes";
 		// need to save using MPI functionale
 		// just need to save nodes - element, face correlations remains the same, EXCEPT when you grid refine!
 		// eventually dump an updated control file too
@@ -189,7 +191,7 @@ struct MPIBinaryConfiguration : ConfigurationBase
 		/////////////////
 		//std::string 
 		
-		fname = "elements" + to_string<int>(iter);
+		fname = savepath + "binaryelements";
 
 		if (ndim == 3)
 			MPI_Type_contiguous(24, MPI_INT, &TType);
@@ -247,34 +249,8 @@ struct MPIBinaryConfiguration : ConfigurationBase
 		MPI_File_close(&fh);
 		cout << "done" << endl;
 
-		/*	void add_adap(std::vector<double> & data)
-		{
-			// 0 - element
-			// 1 - adap flag
-			// 2 - tensor data
-			if (data.size() == 0)
-				return;
-
-			int elno = (int)data[0];
-			bool adap = (bool)data[1];
-			int refine_level = (int)data[2];
-
-			elements[ elno ]->adap = adap;
-			elements[ elno ]->refine_level = refine_level;
-
-			std::string datastring = "double ";
-			for (int i = 4; i < data.size(); i++)			// this all is hackish, get working then fix.
-			{												// might make more sense to make a string ver. of read
-				datastring += to_string<double>(data[i]);	// and have the stream version call it once it stringsplits
-				datastring += " ";
-			}
-			std::istringstream is(datastring);
-
-			read( is, elements[ elno ]->Hnm);
-		}
-*/
 		// note: this (and grid refinement) is NOT yet mpi capable fixme
-		boost::filesystem::ofstream adapfile("adap");
+		boost::filesystem::ofstream adapfile(savepath + "adap");
 		for (int i = 0; i < nele; i++)		// get data from nodes
 		{
 			if (elements[i]->adap) // are adap flags being set???
@@ -296,33 +272,10 @@ struct MPIBinaryConfiguration : ConfigurationBase
 			}
 		}
 		adapfile.close();
-/*
-		boost::filesystem::ofstream facefile("faces");
-		for (int i = 0; i < elements.size(); i++)
-		{
-			if (elements[i]->face.size() != 0)
-			{
-				for (int j = 0; j < elements[i]->face.size(); j++)
-				{
-					facefile << i << " "
-							 << elements[i]->face[j]->face << " "
-							 << elements[i]->face[j]->bc   << " ";
-					
-					for (int k = 0; k < 2; k++)								// fixme: 2d specific
-					{
-						facefile << elements[i]->face[j]->n(k) << " ";		// fixme: tensor writer w/o commas
-					}
 
-					facefile << endl;
-				}
-			}
-		}
-		facefile.close();
-*/
 		// not sure if this should work for multiple processes
-		std::string path = ".";
 		for(int i=1; i<9;i++)
-			MPI_Breakdown(elements, nodes, neqn, nnod, path, i);
+			MPI_Breakdown(elements, nodes, neqn, nnod, savepath, i);
 	}
 	
 	int size;

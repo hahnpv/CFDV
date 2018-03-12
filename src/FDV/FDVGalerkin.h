@@ -246,7 +246,7 @@ struct FDVGalerkin : public unary_function<T, void>
 					e_eta(i) = 1. / pow(J_eta, 0.5) * jac(i, 1);
 				}
 			}
-			else
+			else if (nnod == 3)
 			{
 				jacobiantri jac(dtf, node);
 				J_xi = pow(jac(0, 0), 2) + pow(jac(1, 0), 2);
@@ -258,22 +258,28 @@ struct FDVGalerkin : public unary_function<T, void>
 					e_eta(i) = 1. / pow(J_eta, 0.5) * jac(i, 1);
 				}
 			}
-/*
-			J_xi  =  pow( jac(0, 0) ,2) + pow( jac(1, 0) ,2);
-			J_eta =  pow( jac(0, 1) ,2) + pow( jac(1, 1) ,2);
-
-			for (int i = 0; i < ndim; i++)
+			/*
+			else if (nnod = 6)
 			{
-				e_xi(i)  = 1. / pow( J_xi,  0.5)  * jac(i, 0);	// worked as dPxi()
-				e_eta(i) = 1. / pow( J_eta, 0.5) * jac(i, 1);
+				jacobian3d jac(dtf, node);
+				J_xi = pow(jac(0, 0), 2) + pow(jac(1, 0), 2);
+				J_eta = pow(jac(0, 1), 2) + pow(jac(1, 1), 2);
+
+				for (int i = 0; i < ndim; i++)
+				{
+					e_xi(i) = 1. / pow(J_xi, 0.5)  * jac(i, 0);	// worked as dPxi()
+					e_eta(i) = 1. / pow(J_eta, 0.5) * jac(i, 1);
+				}
 			}
-*/
+			*/
+
 			v_xi  = dot(flow.v, e_xi);
 			v_eta = dot(flow.v, e_eta);
 
 			S = dot(flow.v, flow.v);
 
-			// can generalize using test function to interpolate... 
+			// can generalize using test function to interpolate...  FIXME should be testfunction, testfunctiontri, ... 
+			// FIXME 2d specific 
 			Tensor<double, 1> xloc(2);
 			xloc(0) = -1.; xloc(1) =  0.;		// left
 			Tensor<double, 1> xleft = testfunction(xloc);

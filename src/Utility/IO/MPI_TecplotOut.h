@@ -5,6 +5,8 @@
 #include <iomanip>
 using namespace std;
 
+#include "../../FDV/Function/FDVParam.h"
+
 // Output a Tecplot FE data file
 
 struct elem
@@ -12,6 +14,15 @@ struct elem
 	int number;
 	int node[8];	// 8
 };
+
+struct fdv
+{
+	double s1;
+	double s2;
+	double s3;
+	double s4;
+};
+
 struct pnode
 {
 	double number;
@@ -39,9 +50,14 @@ struct MPI_TecplotOut
 		MPI_Type_contiguous(9, MPI_INT, &ElementType);
 		MPI_Type_commit(&ElementType);
 
+		MPI_Datatype FdvType;
+		MPI_Type_contiguous(4, MPI_DOUBLE, &FdvType);
+		MPI_Type_commit(&FdvType);
+
 		// do it like MPI_GMRES, make a vector of stuff to send and send it, except in this case, no return vec.
 		std::vector< elem> elements;
 		std::vector< pnode> nodes;
+		std::vector< fdv> ffdv;
 
 		int delta = 0;
 		if ( rank > 0)
@@ -82,6 +98,24 @@ struct MPI_TecplotOut
 				e.node[x] = Elements[i]->node[x]->number;
 			}
 			elements.push_back( e);
+
+			if (ele_data)
+			{
+				// fdv
+				double s1 = 0;
+				double s2 = 0;
+				double s3 = 0;
+				double s4 = 0;
+				FDVParam<Element *> fdvparam;			/// Calculate the FDV parameters
+				fdvparam(Elements[i], s1, s2, s3, s4);
+
+				fdv f;
+				f.s1 = s1;
+				f.s2 = s2;
+				f.s3 = s3;
+				f.s4 = s4;
+				ffdv.push_back(f);
+			}
 		}
 
 
@@ -103,6 +137,13 @@ struct MPI_TecplotOut
 			for (int j = 0; j < num_msg_send; j++)
 			{
 				MPI_Send( &nodes[j], 1, NodeType, other_rank, tag, MPI_COMM_WORLD);
+			}
+
+			num_msg_send = ffdv.size();
+			MPI_Send(&num_msg_send, 1, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
+			for (int j = 0; j < num_msg_send; j++)
+			{
+				MPI_Send(&ffdv[j], 1, NodeType, other_rank, tag, MPI_COMM_WORLD);
 			}
 			//// SEND BLOCK ////		
 		}
@@ -129,6 +170,14 @@ struct MPI_TecplotOut
 					pnode n;
 					MPI_Recv( &n, 1, NodeType, k+1, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 					nodes.push_back( n);
+				}
+
+				MPI_Recv(&num_msg_recv, 1, MPI_INT, k + 1, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				for (int j = 0; j < num_msg_recv; j++)
+				{
+					fdv f;
+					MPI_Recv(&f, 1, FdvType, k + 1, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					ffdv.push_back(f);
 				}
 				//// RECV BLOCK ////
 			}		
@@ -284,6 +333,30 @@ struct MPI_TecplotOut
 			}
 			tout << endl;
 
+			// s1-s4
+			if (ele_data)
+			{
+				for (unsigned int f = 0; f < ffdv.size(); f++)
+				{
+					tout << ffdv[f].s1 << "\t";
+					if (f % 100 == 0 && f != 0) tout << endl;
+				}
+				for (unsigned int f = 0; f < ffdv.size(); f++)
+				{
+					tout << ffdv[f].s2 << "\t";
+					if (f % 100 == 0 && f != 0) tout << endl;
+				}
+				for (unsigned int f = 0; f < ffdv.size(); f++)
+				{
+					tout << ffdv[f].s3 << "\t";
+					if (f % 100 == 0 && f != 0) tout << endl;
+				}
+				for (unsigned int f = 0; f < ffdv.size(); f++)
+				{
+					tout << ffdv[f].s4 << "\t";
+					if (f % 100 == 0 && f != 0) tout << endl;
+				}
+			}
 
 			// correlation
 			for (unsigned int e=0; e < elements.size(); e++)
