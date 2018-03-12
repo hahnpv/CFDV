@@ -144,9 +144,9 @@ struct MPI_TecplotOut
 			MPI_Send(&num_msg_send, 1, MPI_INT, other_rank, tag, MPI_COMM_WORLD);
 			for (int j = 0; j < num_msg_send; j++)
 			{
-				MPI_Send(&ffdv[j], 1, NodeType, other_rank, tag, MPI_COMM_WORLD);
+				MPI_Send(&ffdv[j], 1, FdvType, other_rank, tag, MPI_COMM_WORLD);
 			}
-			//// SEND BLOCK ////		
+			//// SEND BLOCK ////
 		}
 
 		if (rank == 0)
@@ -181,9 +181,8 @@ struct MPI_TecplotOut
 					ffdv.push_back(f);
 				}
 				//// RECV BLOCK ////
-			}		
+			}
 		}
-	
 		if (rank == 0)
 		{
 			// write file
@@ -209,8 +208,8 @@ struct MPI_TecplotOut
 			if (ndim == 3)
 			{
 				tout << " \"w\",";
-			}		
-			tout << "\"T\", \"p\","; 
+			}
+			tout << "\"T\", \"p\",";
 			if (ele_data)
 			{
 				tout << "\"s1\", \"s2\", \"s3\", \"s4\", ";
