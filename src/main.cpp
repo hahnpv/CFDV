@@ -12,8 +12,6 @@
 #include <algorithm>					/// for_each
 
 	// Configuration
-#include "ConfigurationBase.h"
-//#include "MPIConfiguration.h"
 #include "MPIBinaryConfiguration.h"
 
 	// Base Classes
@@ -92,70 +90,12 @@ po::variables_map add_program_options(int argc, char * argv[])
 			<< "phahn@blueorigin.com" << endl
 			<< endl
 			<< "'You will never forget.' -Dr. Chung" << endl;
-
-		return vm;
 	}
-	/*
-	// input file variable map 
-	po::options_description control("Configuration File Options");
-	control.add_options()
-		("tmax",		po::value< vector<double> >(), "Maximum flowthrough time [s]")
-		("itermax",		po::value< vector<int> >(), "Maximum number of iterations")
-		("cfl",			po::value< vector<double> >(), "Prescribed CFL number")
-		("gmresrestart",po::value< vector<int> >(), "GMRES: number of restarts")
-		("gmresiter",	po::value< vector<int> >(), "GMRES: number of iterations")
-		("ndim",		po::value< vector<int> >(), "Number of nodes")
-		("nnod",		po::value< vector<int> >(), "Number of dimensions")
-		("neqn",		po::value< vector<int> >(), "Number of equations")
-		("nbnod",		po::value< vector<int> >(), "Number of boundary nodes")
-		("nface",		po::value< vector<int> >(), "Number of faces")
-		("nodes",		po::value< vector<int> >(), "Number of nodes")
-		("elements",	po::value< vector<int> >(), "Number of elements")
-		("iter",		po::value< vector<int> >(), "Starting iteration number")
-		("adap",		po::value< vector<int> >(),	"Use adaption file to specify hanging nodes")
-		;
-
-	po::options_description config_file_options;
-	config_file_options.add(control);
-
-	std::string fname = vm["path"].as<std::string>() + "//control";
-	po::variables_map om;
-	std::ifstream control_file(fname, std::ifstream::in);
-	po::store(po::parse_config_file(control_file, control), om);
-	control_file.close();
-	po::notify(om);
-
-	po::options_description aero("Configuration File Options");
-	aero.add_options()
-		("M",			po::value< vector<double> >(),	"Freestream Mach number")
-		("Pr",			po::value< vector<double> >(),	"Prandtl Number")
-		("Re",			po::value< vector<double> >(),	"Freestream Reynolds number")
-		("Tinf",		po::value< vector<double> >(),	"Freestream Temperature")
-		("Twall",		po::value< vector<double> >(),  "Wall Temperature")
-		("Adiabatic",	po::value< vector<int> >(),		"Adiabatic Wall flag")
-		("gamma",		po::value< vector<double> >(),	"Ratio of Specific Heats")
-		;
-
-	fname = vm["path"].as<std::string>() + "//aero";
-	po::variables_map am;
-	std::ifstream aero_file(fname, std::ifstream::in);
-	po::store(po::parse_config_file(aero_file, aero), am);
-	aero_file.close();
-	po::notify(am);
-
-	// TODO combine control+aero into one file with [headers]
-
-	// TODO combine all variables_maps
-
-	// TODO thread variable maps through code - could overload LoadBinaryData 
-	*/
-
 	return vm;
 }
 
 	//	3. Find unifications between 2D and 3D if any
 	// Still some hardcoded stuff that needs to be generalized.
-	
 int main(int argc, char *argv[])
 {
 	po::variables_map vm = add_program_options(argc, argv);
@@ -174,21 +114,21 @@ int main(int argc, char *argv[])
 	std::vector< Node *> nodes;
 	std::vector< Element *> elements;
 
-	LoadBinaryData init(args, elements, nodes);							/// new binary method
+	LoadBinaryData init(vm, elements, nodes);							/// new binary method
 
 	double t    = 0;
 	double dt   = 0;
-	int    iter = init.key.get_val<int>("iter");
-	double cfl  = init.key.get_val<double>("cfl");						/// Prescribed CFL number
-	int itermax = init.key.get_val<int>("itermax");						/// Maximum number of time iterations
-	int nnod = init.key.get_val<int>("nnod");							/// Number of nodes per finite element
-	int neqn = init.key.get_val<int>("neqn");							/// Number of equations per node
-	int ndim = init.key.get_val<int>("ndim");							/// Number of dimensions 
-	int nface = init.key.get_val<int>("nface");							/// Number of faces
-	int nbnod = init.key.get_val<int>("nbnod");							/// Number of boundary nodes
-//	ele_t eletype = init.key.get_val<ele_t>("ele_t");					/// element type
+	
+	int   iter = init.cm["iter"].as<int>();
+	double cfl = init.cm["cfl"].as<double>();						/// Prescribed CFL number
+	int itermax = init.cm["itermax"].as<int>();						/// Maximum number of time iterations
+	int nnod  = init.cm["nnod"].as<int>();							/// Number of nodes per finite element
+	int neqn  = init.cm["neqn"].as<int>();							/// Number of equations per node
+	int ndim  = init.cm["ndim"].as<int>();							/// Number of dimensions 
+	int nface = init.cm["nface"].as<int>();							/// Number of faces
+	int nbnod = init.cm["nbnod"].as<int>();							/// Number of boundary nodes
 
-	ConfigurationBase *	config = new MPIBinaryConfiguration(argc, argv, elements, nodes, init.key, init);	
+	MPIBinaryConfiguration * config = new MPIBinaryConfiguration(argc, argv, elements, nodes, vm["path"].as<std::string>(), init);
 
 	cout << "nodes/eles: " << nodes.size() << " " << elements.size() << endl;
 
@@ -209,10 +149,11 @@ int main(int argc, char *argv[])
 PrecisionTimer timer_l;
 timer_l.start();
 
+
+	/// MESH REFINEMENT ///
 	if (vm["adap"].as<bool>())
 	{
 		cout << "Performing grid refinement..." << endl;
-		/// MESH REFINEMENT ///
 		std::vector<int> elelist;			// elements to be refined
 		std::vector<int> refine_level;		// breakpoints for each level refine
 		AdaptiveRefineList<Element, Node>(elelist, refine_level, elements, nodes, nnod, nface);
@@ -220,12 +161,11 @@ timer_l.start();
 		cout << "Done adapting mesh" << endl;
 		for_each(nodes.begin(), nodes.end(), NodeUnpack<Node *>());								/// extract nodes
 		for_each(nodes.begin(), nodes.end(), NodeCheck<Node *>());								/// check for invalid nodal values
-		/// MESH REFINEMENT ///
-		config->Save(elements, nodes, iter, init.key);						// TODO add updated config files?
+		config->Save(elements, nodes, iter);													// TODO add updated config files?
 		return 0;
 	}
 
-		// Time Loop
+	/// CFD Integration ///
 	for (; iter < itermax; iter++)
 	{
 		cout << " t = " << t << ", iteration " << iter << endl;
@@ -238,7 +178,7 @@ timer_l.start();
 
 		for_each(nodes.begin(), nodes.end(), NodeCheck<Node *>());								/// check for invalid nodal values
 
-		if (iter % 100 == 0) config->Save(elements, nodes, iter, init.key);						// TODO add updated config files?
+		if (iter % 100 == 0) config->Save(elements, nodes, iter);								// TODO add updated config files?
 
 		CFL<Element *>(elements, cfl, dt);														/// Update CFL number
 
@@ -313,6 +253,8 @@ timer_l.start();
 		cout << "time: " << timer_l.read() << endl;
 		timer.check(iter, t, dt);
 	}
+
+	config->Save(elements, nodes, iter);								// TODO add updated config files?
 
 	delete config;
     

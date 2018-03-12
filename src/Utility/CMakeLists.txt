@@ -3,14 +3,11 @@ set(util_source_files
   IO/ASCIItoBinary
   IO/ASCIItoBinary/LoadBinary.h
   IO/ASCIItoBinary/SaveBinary.h
-  IO/Load.h
   IO/MPI_Save.h
   IO/MPI_TecplotOut.h
-  IO/NewLoad.h
   MPI_Breakdown.h
   parse.h
   PrecisionTimer.h
-  PrecisionTimerLinux.h
   Singleton.h
   Solvers/GMRES.h
   Solvers/GMRESbase.h

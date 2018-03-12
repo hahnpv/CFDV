@@ -6,6 +6,7 @@
 #include "mpi.h"
 #include <vector>
 #include "Utility/dictionary.h"
+#include "FDV/Element.h"
 #include <iostream>
 using namespace std;
 struct MPI_init_CFD

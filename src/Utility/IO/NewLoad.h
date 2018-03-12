@@ -21,7 +21,7 @@
 	/// not sure why. Might be a precision issue?
 	/// but if not refining residuals are identical for 4+ iterations
 	/// preserves appropriate adap structure ... so must be precision?
-struct NewLoad : public Load
+struct NewLoad
 {
 	NewLoad( std::vector<std::string> & args,
 			 std::vector< Element * > & elements, 

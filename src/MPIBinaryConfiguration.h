@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ConfigurationBase.h"
 #include "MPI_Init_CFD.h"
 #include "Utility/IO/MPI_TecplotOut.h"
 #include "FDV/Function/MPI_RMSError.h"
@@ -17,16 +16,19 @@
 
 #include <functional> // std::ref
 
-struct MPIBinaryConfiguration : ConfigurationBase
+struct MPIBinaryConfiguration
 {
-	MPIBinaryConfiguration(int argc, char * argv[], std::vector<Element *> & elements, std::vector<Node *> & nodes, dictionary & key, LoadBinaryData & init)
-		: ConfigurationBase(key)
+	MPIBinaryConfiguration(int argc, char * argv[], std::vector<Element *> & elements, std::vector<Node *> & nodes, std::string path, LoadBinaryData & init)
+		: path(path)
 	{
-		int    iter    = key.get_val<int>("iter");
-		double cfl     = key.get_val<double>("cfl");					/// Prescribed CFL number
-		int itermax    = key.get_val<int>("itermax");					/// Maximum number of time iterations
-		gmres_iter = key.get_val<int>("gmresiter");					/// Number of GMRES iterations 
-		gmres_rest = key.get_val<int>("gmresrestart");				/// Number of GMRES restarts
+		int   iter = init.cm["iter"].as<int>();
+		double cfl = init.cm["cfl"].as<double>();						/// Prescribed CFL number
+		int itermax = init.cm["itermax"].as<int>();						/// Maximum number of time iterations
+		gmres_iter = init.cm["gmresiter"].as<int>();					/// Number of GMRES iterations
+		gmres_rest = init.cm["gmresrestart"].as<int>();					/// Number of GMRES restarts
+		nnod = init.cm["nnod"].as<int>();							/// Number of nodes per finite element
+		neqn = init.cm["neqn"].as<int>();							/// Number of equations per node
+		ndim = init.cm["ndim"].as<int>();							/// Number of dimensions 
 
 		int rc = MPI_Init(&argc,&argv);
 		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -34,7 +36,6 @@ struct MPIBinaryConfiguration : ConfigurationBase
 
 		// instead of MPI_init_CFD, read in the MPIBreakdown file...
 		// still not as parallel as it could be but much better.
-		path = key.get_val<std::string>("path");
 		cout << "path: " << path << endl;
 		ifstream mbd( (path + "//MPIBreakdown").c_str(), ios::in);
 		std::vector<int> data;
@@ -100,6 +101,10 @@ struct MPIBinaryConfiguration : ConfigurationBase
 		gmres = new MPI_GMRES( gmres_rest, gmres_iter, nodesize, neqn, nnod, ndim, size, rank, offset);
 	}
 	
+	~MPIBinaryConfiguration()
+	{
+		delete gmres;
+	}
 
 	void reset_gmres()
 	{
@@ -118,7 +123,7 @@ struct MPIBinaryConfiguration : ConfigurationBase
 		for_each(NodeIteratorStart, NodeIteratorEnd, ref(rmserr));
 	}
 
-	void Save(std::vector<Element *> &elements, std::vector<Node *> &nodes, int iter, dictionary & key)
+	void Save(std::vector<Element *> &elements, std::vector<Node *> &nodes, int iter)
 	{
 		std::string savepath = path + "//" + to_string<int>(iter) + "//";
 		boost::filesystem::create_directory(savepath);
@@ -290,4 +295,13 @@ struct MPIBinaryConfiguration : ConfigurationBase
 	int max;				// int equiv of max iterator
 
 	int gmres_iter, gmres_rest;
+
+	int rank;
+
+	int nnod;
+	int neqn;
+	int ndim;
+	std::vector<Node *>::iterator NodeIteratorStart;
+	std::vector<Node *>::iterator NodeIteratorEnd;
+	GMRESbase * gmres;
 };

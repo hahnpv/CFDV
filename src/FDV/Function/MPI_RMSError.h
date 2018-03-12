@@ -3,11 +3,10 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
-#include "RMSBase.h"
 using namespace std;
 
 	/// monitor RMS Error of CFD solution, MPI parallelized
-template<class T> struct MPI_RMSError : public RMSBase<T> // public unary_function<T, void>
+template<class T> struct MPI_RMSError // : public unary_function<T, void>
 {
 	MPI_RMSError(std::string filename, double t, int iter, int neqn)
 		: filename( filename), t(t), iter(iter), dU(neqn), dU0(neqn), neqn(neqn), Urms(neqn)

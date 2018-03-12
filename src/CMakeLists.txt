@@ -28,12 +28,12 @@ ${Boost_INCLUDE_DIR}
 "${CMAKE_SOURCE_DIR}/FDV/Function")
 
 add_executable(CFDV main.cpp)
-add_executable(CONVERT ConvertMain.cpp)
-add_executable(EXTRACT ExtractMain.cpp)
+add_executable(CONVERT ExtractMain.cpp)
+add_executable(EXTRACT ConvertMain.cpp)
 
 target_link_libraries(CFDV ${MPI_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(CONVERT ${MPI_LIBRARIES} ${Boost_LIBRARIES})
 target_link_libraries(EXTRACT ${MPI_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(CONVERT ${MPI_LIBRARIES} ${Boost_LIBRARIES})
 
 
 if(MPI_COMPILE_FLAGS)

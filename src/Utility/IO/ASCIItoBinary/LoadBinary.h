@@ -11,6 +11,9 @@
 
 #include "../../../FDV/Element.h"
 
+#include "boost/program_options.hpp"
+namespace po = boost::program_options;
+
 using namespace std;
 
 	/// 3D
@@ -96,39 +99,64 @@ struct LoadBinaryData
 	std::string path;
 		
 	LoadBinaryData(
-			 std::vector<std::string> & args,
-			 std::vector< Element * > & elements, 
+			 po::variables_map & cmdline,
+			 std::vector< Element * > & elements,
 			 std::vector< Node *> & nodes 
 			 )
 			 :	elements( elements),
 				nodes( nodes)
 		{
-	
-		// args points to DIRECTORY instead of FILES.
-		if (args.size() < 2)			// catch debug instantiation
-		{
-		//	path = "..//input//flat_plate_validate_fortran_new";
-			path = "input//3dtestlagrange";
-		//	path = "input//smallbackstep";
-		}
-		else
-		{
-			path = args[1];
-		}
+		path = cmdline["path"].as<std::string>();
 
-		key.add_key("path", path);
+		// input file variable map
+		po::options_description controlinput("Configuration File Options");
+		controlinput.add_options()
+		("tmax",		po::value<double>(), "Maximum flowthrough time [s]")
+		("itermax",		po::value<int>(), "Maximum number of iterations")
+		("cfl",			po::value<double>(), "Prescribed CFL number")
+		("gmresrestart",po::value<int>(), "GMRES: number of restarts")
+		("gmresiter",	po::value<int>(), "GMRES: number of iterations")
+		("ndim",		po::value<int>(), "Number of nodes")
+		("nnod",		po::value<int>(), "Number of dimensions")
+		("neqn",		po::value<int>(), "Number of equations")
+		("nbnod",		po::value<int>(), "Number of boundary nodes")
+		("nface",		po::value<int>(), "Number of faces")
+		("nodes",		po::value<int>(), "Number of nodes")
+		("elements",	po::value<int>(), "Number of elements")
+		("iter",		po::value<int>(), "Starting iteration number")
+		("adap",		po::value<bool>(),	"Use adaption file to specify hanging nodes")
+		;
 
-		cout << "path: " << path << endl;
-		cout << "aeropath: " << path + "//aero" << endl;
+		std::string fname = path + "//control";
+		std::ifstream control_file(fname.c_str(), std::ifstream::in);
+		po::store(po::parse_config_file(control_file, controlinput), cm);
+		control_file.close();
+		po::notify(cm);
 
-		aero(path + "//aero");
-		control(path + "//control");
+		po::options_description aeroinput("Configuration File Options");
+		aeroinput.add_options()
+		("M",			po::value<double>(),	"Freestream Mach number")
+		("Pr",			po::value<double>(),	"Prandtl Number")
+		("Re",			po::value<double>(),	"Freestream Reynolds number")
+		("Tinf",		po::value<double>(),	"Freestream Temperature")
+		("Twall",		po::value<double>(),	"Wall Temperature")
+		("Adiabatic",	po::value<bool>(),		"Adiabatic Wall flag")
+		("gamma",		po::value<double>(),	"Ratio of Specific Heats")
+		;
+
+		fname = path + "//aero";
+		std::ifstream aero_file(fname.c_str(), std::ifstream::in);
+		po::store(po::parse_config_file(aero_file, aeroinput), am);
+		aero_file.close();
+		po::notify(am);
+
+		// TODO combine control+aero into one file with [headers]
 
 		// set up nnod, neqn, ndim
-		nnod = key.get_val<int>("nnod");
-		neqn = key.get_val<int>("neqn");
-		ndim = key.get_val<int>("ndim");
-		nbnod = key.get_val<int>("nbnod");
+		nnod  = cm["nnod"].as<int>();							/// Number of nodes per finite element
+		neqn  = cm["neqn"].as<int>();							/// Number of equations per node
+		ndim  = cm["ndim"].as<int>();							/// Number of dimensions 
+		nbnod = cm["nbnod"].as<int>();							/// Number of boundary nodes
 
 		// need to set up thermo before nodes, for Cv in E calc.
 		add_thermo();	
@@ -194,22 +222,12 @@ struct LoadBinaryData
 
 	void read_adap()
 	{
-		if ( key.get_val<bool>("adap") )
+		if (cm["adap"].as<bool>() )
 		{
 			cout << "adap" << endl;
 			adap(path + "//adap");
 		}
 	}
-
-	void aero(std::string path)
-	{
-		read_file(path);
-	};
-
-	void control(std::string path)
-	{
-		read_file(path);
-	};
 
 	template< class node_t>
 	void loadNodes(std::string path, int min, int max)
@@ -282,14 +300,7 @@ struct LoadBinaryData
 
 			Element * e = new Element((int)nnod, (int)neqn, (int)ndim);
 			e->number = i;
-			/*
-			// HAX missing BC 
-			if (i == 1409)
-			{
-				cout << "HAX IN LoadBinary.h" << endl;
-				ele.bc[3] = -1.;
-			}
-			*/
+
 //			cout << "ele.node: " << ele.node[0] << " " << ele.node[1] << endl;
 			for (int j=0; j < nnod; j++)
 			{
@@ -350,27 +361,6 @@ struct LoadBinaryData
 		read( is, elements[ elno ]->Hnm);
 	}
 
-
-	void read_file(std::string filename)
-	{
-		ifstream file(filename.c_str(),ios::in);
-		if (!file.is_open())
-		{
-			cout << "Error opening " << filename << "!" << endl;
-			cin.get();
-			return;
-		}
-		else
-		{
-			while(!file.eof())
-			{
-				string input;
-				getline(file, input);
-				key.add_key(split<string>(input," \t"));
-			}
-		}
-		file.close();
-	}
 		/// Add a face to an element
 	void add_face(Element * e, int face, int bc)	// take a face line and apply to elems
 	{
@@ -432,15 +422,15 @@ struct LoadBinaryData
 	{
 		Thermo & thermo = Thermo::Instance();
 
-		thermo.setGamma( key.get_val<double>("gamma"));	
-		thermo.Pr    = key.get_val<double>("Pr");
-		thermo.csuth = 110.0 / key.get_val<double>("Tinf");
-		thermo.cmach = key.get_val<double>("M");
+		thermo.setGamma( am["gamma"].as<double>());
+		thermo.Pr    = am["Pr"].as<double>();
+		thermo.csuth = 110.0 / am["Tinf"].as<double>();
+		thermo.cmach = am["M"].as<double>();
 		thermo.Cv    = 1./thermo.gamma/(thermo.gamma-1.0)/pow(thermo.cmach, 2);
 		thermo.cgas  = 1.0/1.4/pow(thermo.cmach, 2);
-		thermo.creyn = key.get_val<double>("Re");
-		thermo.Twall = key.get_val<double>("Twall");
-		thermo.adiabatic = key.get_val<bool>("Adiabatic");
+		thermo.creyn = am["Re"].as<double>();
+		thermo.Twall = am["Twall"].as<double>();
+		thermo.adiabatic = am["Adiabatic"].as<bool>();
 	}
 
 	std::vector< Element * > & elements;
@@ -456,5 +446,6 @@ struct LoadBinaryData
 	int nbnod;
 
 public:
-	dictionary key;						// make this a public dictionary for the CFD 
+	po::variables_map am;
+	po::variables_map cm;
 };

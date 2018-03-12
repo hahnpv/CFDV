@@ -6,7 +6,6 @@ set(FDV_source_files
   Element.h
   NavierStokes3D.h
   tau.h
-  Flow_FGB.h
   NavierStokes1D.h
   NavierStokes.h
   Thermo.h
@@ -24,7 +23,6 @@ set(FDV_source_files
   Function/eval1dboundary.h
   Function/LUFactorization.h
   Function/MPI_RMSError.h
-  Function/RMSBase.h
 )
 add_library(FDV ${FDV_source_files})
 

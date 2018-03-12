@@ -6,6 +6,7 @@
 using namespace std;
 
 #include "../../FDV/Function/FDVParam.h"
+#include "../../FDV/Element.h"
 
 // Output a Tecplot FE data file
 
