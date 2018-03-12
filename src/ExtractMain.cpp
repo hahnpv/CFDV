@@ -81,13 +81,13 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	LoadBinaryData init(args, elements, nodes);							/// new binary method
-	init.read_nodes(0, init.key.get_val<int>("nodes") );				// add new node path here.
-	init.read_elements(0, init.key.get_val<int>("elements") );
+	LoadBinaryData init(vm, elements, nodes);					/// new binary method
+//	init.read_nodes(0, init.key.get_val<int>("nodes") );				// add new node path here.
+//	init.read_elements(0, init.key.get_val<int>("elements") );
 
-	int ndim = init.key.get_val<int>("ndim");
-	int nnod = init.key.get_val<int>("nnod");
-	int neqn = init.key.get_val<int>("neqn");
+	int ndim = init.cm["ndim"].as<int>();
+	int nnod = init.cm["nnod"].as<int>();
+	int neqn = init.cm["neqn"].as<int>();
 
 	for_each(elements.begin(), elements.end(), ClearElement<Element *>());					/// Clear matrices in each element
 	for_each(nodes.begin(), nodes.end(), NodeUnpack<Node *>());								/// extract nodes
