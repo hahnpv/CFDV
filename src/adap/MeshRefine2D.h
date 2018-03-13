@@ -34,17 +34,8 @@ struct PriorRefinePair
 			cout << "Done adapting mesh" << endl;
 		}
 */
-/*		if (iter == 10)		/// mesh unrefine is broken
-		{
-				// Attempt mesh unrefine
-			MeshUnrefine2D<Element, Node>(elements, nodes, ndim, neqn, nnod);
 
-			cout << "done unrefining mesh" << endl;
-			cin.get();
-		}
-*/
-
-	/// Refine a 2D/3D Mesh
+	/// Refine a 2D/3D Mesh FIXME name
 template<class Elements, class Nodes> struct MeshRefine2D
 {
 	MeshRefine2D(std::vector<Elements*> & elements, std::vector<Nodes*> & nodes, 

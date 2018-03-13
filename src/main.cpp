@@ -30,15 +30,9 @@
 #include "FDV/Function/NodeCheck.h"
 #include "FDV/Function/MPI_CFL.h"
 #include "FDV/Function/FDVParam.h"
-// #include "FDV/Function/MatrixOut.h"
-// #include "LUFactorization.h"
-//#include "FDV/Function/Calc_Coeff.h"
 
 	// Input
 #include "Utility/IO/ASCIItoBinary/LoadBinary.h"
-//#include "Utility/IO/NewLoad.h"
-// #include "LoadFromFile.h"
-// #include "LoadFromTecplot.h"
 
 	// Non-CFD
 #include <boost/timer.hpp>
@@ -49,9 +43,7 @@
 	// Mesh Refinement
 #include "adap/ElementAssociation.h"
 #include "adap/MeshRefine2D.h"
-// #include "MeshUnrefine2D.h"
 #include "adap/RefineListAdaptive.h"				// attempt at true adaption based on s1 parameter
-// #include "RefineListProgrammed.h"			// programmed test of element refinement
 
 	// Test
 #include "FDV/Function/AxisymmetricFlow.h"
@@ -91,6 +83,7 @@ po::variables_map add_program_options(int argc, char * argv[])
 			<< endl
 			<< "'You will never forget.' -Dr. Chung" << endl;
 	}
+
 	return vm;
 }
 
@@ -102,37 +95,25 @@ int main(int argc, char *argv[])
 	if (argc <= 1)
 		return 0;
 
-	// deprecate args and replace with program_options, since order could become convoluted.
-	std::vector<std::string> args;
-	for (int i=0; i<argc; i++)
-	{
-		args.push_back( string(argv[i]) );
-	}
-
-	args[1] = vm["path"].as<std::string>();
+	double t = 0;
+	double dt = 0;
 
 	std::vector< Node *> nodes;
 	std::vector< Element *> elements;
-
-	LoadBinaryData init(vm, elements, nodes);							/// new binary method
-
-	double t    = 0;
-	double dt   = 0;
 	
-	int   iter = init.cm["iter"].as<int>();
-	double cfl = init.cm["cfl"].as<double>();						/// Prescribed CFL number
-	int itermax = init.cm["itermax"].as<int>();						/// Maximum number of time iterations
-	int nnod  = init.cm["nnod"].as<int>();							/// Number of nodes per finite element
-	int neqn  = init.cm["neqn"].as<int>();							/// Number of equations per node
-	int ndim  = init.cm["ndim"].as<int>();							/// Number of dimensions 
-	int nface = init.cm["nface"].as<int>();							/// Number of faces
-	int nbnod = init.cm["nbnod"].as<int>();							/// Number of boundary nodes
+	MPIBinaryConfiguration * config = new MPIBinaryConfiguration(argc, argv, vm, elements, nodes, vm["path"].as<std::string>());
 
-	MPIBinaryConfiguration * config = new MPIBinaryConfiguration(argc, argv, elements, nodes, vm["path"].as<std::string>(), init);
+	int iter   = config->cm["iter"].as<int>();
+	double cfl = config->cm["cfl"].as<double>();						/// Prescribed CFL number
+	int itermax = config->cm["itermax"].as<int>();						/// Maximum number of time iterations
+	int nnod  = config->cm["nnod"].as<int>();							/// Number of nodes per finite element
+	int neqn  = config->cm["neqn"].as<int>();							/// Number of equations per node
+	int ndim  = config->cm["ndim"].as<int>();							/// Number of dimensions 
+	int nface = config->cm["nface"].as<int>();							/// Number of faces
+	int nbnod = config->cm["nbnod"].as<int>();							/// Number of boundary nodes
 
 	cout << "nodes/eles: " << nodes.size() << " " << elements.size() << endl;
 
-	cout << "calc length" << endl;
 	CalcLength<Element *> cl(ndim, nnod);
 	for_each(elements.begin(), elements.end(), ref( cl));		// calculate characteristic length
 
@@ -140,15 +121,11 @@ int main(int argc, char *argv[])
 
 	// can move somewhere else? its a mess here
 	IterationTimer timer(config->rank);
-
 	ofstream tout("timeloop.csv",ios::out);
-
 	cout << "time loop" << endl;
-
 
 PrecisionTimer timer_l;
 timer_l.start();
-
 
 	/// MESH REFINEMENT ///
 	if (vm["adap"].as<bool>())
@@ -164,6 +141,8 @@ timer_l.start();
 		config->Save(elements, nodes, iter);													// TODO add updated config files?
 		return 0;
 	}
+
+	config->Save(elements, nodes, iter);								// TODO add updated config files?
 
 	/// CFD Integration ///
 	for (; iter < itermax; iter++)
@@ -239,7 +218,11 @@ timer_l.start();
 			for_each(elements.begin(), elements.end(), ref(fdv));
 		}
 
-//		for_each(elements.begin(), elements.end(), AxisymmetricFlow<Element *>(neqn, nnod));	/// Axisym 2pi
+		if (config->cm["axi"].as<bool>())
+		{
+			cout << "Processing 2D mesh as axisymmetric" << endl;									// until you validate
+			for_each(elements.begin(), elements.end(), AxisymmetricFlow<Element *>(neqn, nnod));	/// Axisym 2pi
+		}
 
 		config->gmres->iterate(elements);														/// Solve via GMRES
 		config->gmres->update(nodes);

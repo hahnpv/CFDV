@@ -14,6 +14,7 @@
 #include "boost/program_options.hpp"
 namespace po = boost::program_options;
 
+
 using namespace std;
 
 	/// 3D
@@ -99,93 +100,35 @@ struct LoadBinaryData
 	std::string path;
 		
 	LoadBinaryData(
-			 po::variables_map & cmdline,
 			 std::vector< Element * > & elements,
-			 std::vector< Node *> & nodes 
-			 )
+			 std::vector< Node *> & nodes,
+	  	     po::variables_map am,
+			 std::string path,
+			 int nnod, int neqn, int ndim, int nbnod
+		)
 			 :	elements( elements),
-				nodes( nodes)
-		{
-		path = cmdline["path"].as<std::string>();
-
-		// input file variable map
-		po::options_description controlinput("Configuration File Options");
-		controlinput.add_options()
-		("tmax",		po::value<double>(), "Maximum flowthrough time [s]")
-		("itermax",		po::value<int>(), "Maximum number of iterations")
-		("cfl",			po::value<double>(), "Prescribed CFL number")
-		("gmresrestart",po::value<int>(), "GMRES: number of restarts")
-		("gmresiter",	po::value<int>(), "GMRES: number of iterations")
-		("ndim",		po::value<int>(), "Number of nodes")
-		("nnod",		po::value<int>(), "Number of dimensions")
-		("neqn",		po::value<int>(), "Number of equations")
-		("nbnod",		po::value<int>(), "Number of boundary nodes")
-		("nface",		po::value<int>(), "Number of faces")
-		("nodes",		po::value<int>(), "Number of nodes")
-		("elements",	po::value<int>(), "Number of elements")
-		("iter",		po::value<int>(), "Starting iteration number")
-		("adap",		po::value<bool>(),	"Use adaption file to specify hanging nodes")
-		;
-
-		std::string fname = path + "//control";
-		std::ifstream control_file(fname.c_str(), std::ifstream::in);
-		po::store(po::parse_config_file(control_file, controlinput), cm);
-		control_file.close();
-		po::notify(cm);
-
-		po::options_description aeroinput("Configuration File Options");
-		aeroinput.add_options()
-		("M",			po::value<double>(),	"Freestream Mach number")
-		("Pr",			po::value<double>(),	"Prandtl Number")
-		("Re",			po::value<double>(),	"Freestream Reynolds number")
-		("Tinf",		po::value<double>(),	"Freestream Temperature")
-		("Twall",		po::value<double>(),	"Wall Temperature")
-		("Adiabatic",	po::value<bool>(),		"Adiabatic Wall flag")
-		("gamma",		po::value<double>(),	"Ratio of Specific Heats")
-		;
-
-		fname = path + "//aero";
-		std::ifstream aero_file(fname.c_str(), std::ifstream::in);
-		po::store(po::parse_config_file(aero_file, aeroinput), am);
-		aero_file.close();
-		po::notify(am);
-
-		// TODO combine control+aero into one file with [headers]
-
-		// set up nnod, neqn, ndim
-		nnod  = cm["nnod"].as<int>();							/// Number of nodes per finite element
-		neqn  = cm["neqn"].as<int>();							/// Number of equations per node
-		ndim  = cm["ndim"].as<int>();							/// Number of dimensions 
-		nbnod = cm["nbnod"].as<int>();							/// Number of boundary nodes
-
-		// need to set up thermo before nodes, for Cv in E calc.
-		add_thermo();	
+				nodes( nodes),
+		        path(path),
+				nnod(nnod),
+				neqn(neqn),
+				ndim(ndim),
+				nbnod(nbnod)
+	{
+		add_thermo(am);
 	}
 	
 	void read_elements(int min, int max, std::string fname = "//binaryelements")
 	{
-			// set up node/element size here eventually -> in MPI from criteron.
-	//	elements.resize( /*key.get_val<int>("elements")*/ max - min );
-
-		// Load nodes, elements, faces. Add parameters for min and max. 
-		// Call MPIConfiguration prior to this and use parameters for our rank.
-		// 
 		if ( ndim == 3)
 		{
-			cout << "3D" << endl;
-//			loadNodes<node_3d_t>(path + "//nodes");
 			loadElements<ele_3d_t>(path + fname, min, max);
 		}
 		else if (ndim == 2)
 		{
-			cout << "2D" << endl;
-//			loadNodes<node_2d_t>(path + "//nodes");
 			loadElements<ele_2d_t>(path + fname, min, max);		
 		}
 		else if (ndim == 1)
 		{
-			cout << "1D" << endl;
-//			loadNodes<node_1d_t>(path + fname, min, max);
 			loadElements<ele_1d_t>(path + fname, min, max);		
 		}
 	}
@@ -193,40 +136,25 @@ struct LoadBinaryData
 	int nodemin;
 	void read_nodes(int min, int max, std::string fname = "//binarynodes")
 	{
-		nodemin = min;
-			// set up node/element size here eventually -> in MPI from criteron.
-	//	nodes.resize( /*key.get_val<int>("nodes")*/ max - min );
+		nodemin = min;	// fixme i dont like this
 
-		// Load nodes, elements, faces. Add parameters for min and max. 
-		// Call MPIConfiguration prior to this and use parameters for our rank.
-		// 
 		if ( ndim == 3)
 		{
-			cout << "3D" << endl;
 			loadNodes<node_3d_t>(path + fname, min, max);
-//			loadElements<ele_2d_t>(path + "//elements");
 		}
 		else if (ndim == 2)
 		{
-			cout << "2D" << endl;
 			loadNodes<node_2d_t>(path + fname, min, max);
-//			loadElements<ele_2d_t>(path + "//elements");		
 		}
 		else if (ndim == 1)
 		{
-			cout << "1D" << endl;
 			loadNodes<node_1d_t>(path + fname, min, max);
-//			loadElements<ele_1d_t>(path + "//elements");		
 		}
 	}
 
 	void read_adap()
 	{
-		if (cm["adap"].as<bool>() )
-		{
-			cout << "adap" << endl;
-			adap(path + "//adap");
-		}
+		adap(path + "//adap");
 	}
 
 	template< class node_t>
@@ -301,7 +229,6 @@ struct LoadBinaryData
 			Element * e = new Element((int)nnod, (int)neqn, (int)ndim);
 			e->number = i;
 
-//			cout << "ele.node: " << ele.node[0] << " " << ele.node[1] << endl;
 			for (int j=0; j < nnod; j++)
 			{
 				e->node[j] = nodes[ele.node[j] - nodemin]; // nodes[elem[j+1]-1];
@@ -314,7 +241,6 @@ struct LoadBinaryData
 					add_face( e, j, ele.bc[j]);
 				}
 			}
-
 
 			elements.push_back( e);
 		}
@@ -418,7 +344,7 @@ struct LoadBinaryData
 		}
 	}
 		/// Create the thermodynamic property structure
-	void add_thermo()
+	void add_thermo(po::variables_map am)
 	{
 		Thermo & thermo = Thermo::Instance();
 
@@ -436,16 +362,8 @@ struct LoadBinaryData
 	std::vector< Element * > & elements;
 	std::vector< Node *> & nodes;
 
-	std::string aerofile;
-	std::string contfile;
-	std::string gridfile;
-
 	int nnod;
 	int neqn;
 	int ndim;
 	int nbnod;
-
-public:
-	po::variables_map am;
-	po::variables_map cm;
 };

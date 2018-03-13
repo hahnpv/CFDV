@@ -1,4 +1,4 @@
-itermax = 1000
+itermax = 20
 cfl = 0.25
 gmresrestart = 1
 gmresiter = 10

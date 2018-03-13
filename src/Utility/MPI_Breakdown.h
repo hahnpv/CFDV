@@ -29,7 +29,6 @@ struct MPI_Breakdown
 		: elements(elements),	// for functions
 		  nnod(nnod),
 		  neqn(neqn),
-		  key(key),
 		  nodes(nodes),
 		  path(path),
 		  size(size)
@@ -87,7 +86,7 @@ struct MPI_Breakdown
 	void get_elements(int & min, int & max, int rank)
 	{
 			// Chop elements
-		int window = /*key.get_val<int>("elements")*/  elements.size() / size;
+		int window = elements.size() / size;
 		int elemin = window * rank;
 
 		min = elemin;
@@ -150,18 +149,12 @@ struct MPI_Breakdown
 
 private:
 
-	dictionary & key;
 	std::vector<Node *> & nodes;
 	std::vector<Element *> & elements;
 
 public:
 	int nodesize;				/// nodes * eqns, try to replace with just nodes and work out in programs.
-//	int rank;					/// our rank number
 	int size;					/// total number of ranks
 	int offset;					/// offset in node count (GMRES)
-//	int nedgenode;				/// number of nodes on the edge bordering the next rank
-//	int nedgenode_left;
 	int nnod;
-//	std::vector<Node *>::iterator NodeIteratorStart;
-//	std::vector<Node *>::iterator NodeIteratorEnd;
 };

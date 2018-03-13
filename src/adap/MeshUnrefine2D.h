@@ -20,7 +20,15 @@ static bool sort_using_less_than(int u, int v)
    return u < v;
 }
 
+/*		if (iter == 10)		/// mesh unrefine is broken
+{
+// Attempt mesh unrefine
+MeshUnrefine2D<Element, Node>(elements, nodes, ndim, neqn, nnod);
 
+cout << "done unrefining mesh" << endl;
+cin.get();
+}
+*/
 	/// Unrefine a 2D Mesh
 template<class Elements, class Nodes> 
 struct MeshUnrefine2D

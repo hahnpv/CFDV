@@ -16,28 +16,149 @@
 
 #include <functional> // std::ref
 
+#include "boost/program_options.hpp"
+namespace po = boost::program_options;
+
+
 struct MPIBinaryConfiguration
 {
-	MPIBinaryConfiguration(int argc, char * argv[], std::vector<Element *> & elements, std::vector<Node *> & nodes, std::string path, LoadBinaryData & init)
+	MPIBinaryConfiguration(int argc, char * argv[], po::variables_map & cmdline, std::vector<Element *> & elements, std::vector<Node *> & nodes, std::string path)
 		: path(path)
 	{
-		int   iter = init.cm["iter"].as<int>();
-		double cfl = init.cm["cfl"].as<double>();						/// Prescribed CFL number
-		int itermax = init.cm["itermax"].as<int>();						/// Maximum number of time iterations
-		gmres_iter = init.cm["gmresiter"].as<int>();					/// Number of GMRES iterations
-		gmres_rest = init.cm["gmresrestart"].as<int>();					/// Number of GMRES restarts
-		nnod = init.cm["nnod"].as<int>();							/// Number of nodes per finite element
-		neqn = init.cm["neqn"].as<int>();							/// Number of equations per node
-		ndim = init.cm["ndim"].as<int>();							/// Number of dimensions 
+		///// NEW
+		path = cmdline["path"].as<std::string>();
 
-		int rc = MPI_Init(&argc,&argv);
+		// input file variable map
+		po::options_description controlinput("Configuration File Options");
+		controlinput.add_options()
+			("tmax", po::value<double>(), "Maximum flowthrough time [s]")
+			("itermax", po::value<int>(), "Maximum number of iterations")
+			("cfl", po::value<double>(), "Prescribed CFL number")
+			("gmresrestart", po::value<int>(), "GMRES: number of restarts")
+			("gmresiter", po::value<int>(), "GMRES: number of iterations")
+			("ndim", po::value<int>(), "Number of nodes")
+			("nnod", po::value<int>(), "Number of dimensions")
+			("neqn", po::value<int>(), "Number of equations")
+			("nbnod", po::value<int>(), "Number of boundary nodes")
+			("nface", po::value<int>(), "Number of faces")
+			("nodes", po::value<int>(), "Number of nodes")
+			("elements", po::value<int>(), "Number of elements")
+			("iter", po::value<int>(), "Starting iteration number")
+			("adap", po::bool_switch()->default_value(false), "Use adaption file to specify hanging nodes")
+			("axi", po::bool_switch()->default_value(false), "Axisymmetric (2D only)")
+			;
+
+		std::string fname = path + "//control";
+		std::ifstream control_file(fname.c_str(), std::ifstream::in);
+		po::store(po::parse_config_file(control_file, controlinput), cm);
+		control_file.close();
+		po::notify(cm);
+
+		po::options_description aeroinput("Configuration File Options");
+		aeroinput.add_options()
+			("M", po::value<double>(), "Freestream Mach number")
+			("Pr", po::value<double>(), "Prandtl Number")
+			("Re", po::value<double>(), "Freestream Reynolds number")
+			("Tinf", po::value<double>(), "Freestream Temperature")
+			("Twall", po::value<double>(), "Wall Temperature")
+			("Adiabatic", po::value<bool>(), "Adiabatic Wall flag")
+			("gamma", po::value<double>(), "Ratio of Specific Heats")
+			;
+
+		fname = path + "//aero";
+		std::ifstream aero_file(fname.c_str(), std::ifstream::in);
+		po::store(po::parse_config_file(aero_file, aeroinput), am);
+		aero_file.close();
+		po::notify(am);
+
+		int rc = MPI_Init(&argc, &argv);
 		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 		MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-		// instead of MPI_init_CFD, read in the MPIBreakdown file...
+
+		// TODO combine control+aero into one file with [headers]
+
+		// set up nnod, neqn, ndim
+		nnod = cm["nnod"].as<int>();							/// Number of nodes per finite element
+		neqn = cm["neqn"].as<int>();							/// Number of equations per node
+		ndim = cm["ndim"].as<int>();							/// Number of dimensions 
+		int nbnod = cm["nbnod"].as<int>();
+
+		LoadBinaryData load(elements, nodes, am, path, nnod, neqn, ndim, nbnod);	// TODO move this into config						/// new binary method
+
+		gmres_iter = cm["gmresiter"].as<int>();					/// Number of GMRES iterations
+		gmres_rest = cm["gmresrestart"].as<int>();					/// Number of GMRES restarts
+
+
+		read_mpi();
+		load.read_nodes(nodemin, nodemax);		
+		load.read_elements(elemin, elemax);	
+
+		cout << "nodes.size: " << nodes.size() << endl;
+
+		NodeIteratorStart = nodes.begin();
+//		NodeIteratorEnd = nodes.begin() + (data[7] - data[6]) + 1;
+		NodeIteratorEnd = nodes.begin() + (node_iterator_max - node_iterator_min) + 1;
+
+		offset = nodemin;
+		nodesize = (nodes.size() - nedgenode) * neqn;
+
+		if (cm["adap"].as<bool>())
+		{
+			load.read_adap();
+		}
+
+		cout << "rank:          " << rank << endl;
+		cout << "element range: " << elemin << " " << elemax << " " << elements.size() << endl;
+		cout << "node range:    " << nodemin << " " << nodemax << " " << nodes.size() << endl;
+		cout << "nedgenode:     " << nedgenode << " left: " << nedgenode_left << endl;
+		cout << "node iter:     " << 0 << " to " << node_iterator_max - node_iterator_min + 1 << endl;//" which is " 
+		cout << "offset:        " << offset << endl;
+		cout << "node size:     " << nodesize << endl;
+
+		gmres = new MPI_GMRES( gmres_rest, gmres_iter, nodesize, neqn, nnod, ndim, size, rank, offset);
+	}
+	
+	~MPIBinaryConfiguration()
+	{
+		delete gmres;
+	}
+
+	void reset_gmres()
+	{
+		delete gmres;
+		gmres = new MPI_GMRES( gmres_rest, gmres_iter, nodesize, neqn, nnod, ndim, size, rank, offset);
+	}
+
+	void RMSErr(double t, int iter)
+	{
+		MPI_RMSError<Node *> rmserr("RMSError.txt", t, iter, neqn);
+		for_each(NodeIteratorStart, NodeIteratorEnd, ref(rmserr));
+	}
+	void Output(std::vector<Element *> &elements, std::vector<Node *> &nodes, int iter, double time, bool ele_data)
+	{
+		MPI_TecplotOut(elements, nodes, iter, ndim, time, ele_data , rank, offset, size, nedgenode_left, nnod, neqn);
+	}
+
+	void Save(std::vector<Element *> &elements, std::vector<Node *> &nodes, int iter)
+	{
+		std::string savepath = path + "//" + to_string<int>(iter) + "//";
+		boost::filesystem::create_directory(savepath);
+
+		SaveBinaryData * save = new SaveBinaryData(elements, nodes, ndim, neqn, nnod, rank, savepath);
+		save->write_nodes(nodemin, nodemax);
+		save->write_elements(elemin, elemax);
+		save->write_adap();
+
+		for(int i=1; i<9;i++)
+			MPI_Breakdown(elements, nodes, neqn, nnod, savepath, i);
+	}
+
+	void read_mpi()
+	{
 		// still not as parallel as it could be but much better.
 		cout << "path: " << path << endl;
-		ifstream mbd( (path + "//MPIBreakdown").c_str(), ios::in);
+		ifstream mbd((path + "//MPIBreakdown").c_str(), ios::in);
 		std::vector<int> data;
 		for (int i = 1; i <= 8; i++)		// temp hardcode, doesnt work except for 2?
 		{
@@ -63,226 +184,25 @@ struct MPIBinaryConfiguration
 					cout << endl;
 				}
 			}
-			if ( i == size)
+			if (i == size)
 				break;
 		}
 		mbd.close();
 
 		elemin = data[0];
 		elemax = data[1];
-		
+
 		nodemin = data[2];
 		nodemax = data[3];
 
-		init.read_nodes(nodemin, nodemax);		
-		init.read_elements(elemin, elemax);	
-
-		cout << "nodes.size: " << nodes.size() << endl;
-
-		nedgenode      = data[5];
+		nedgenode = data[5];
 		nedgenode_left = data[4];
-		NodeIteratorStart = nodes.begin();
-		NodeIteratorEnd = nodes.begin() + (data[7] - data[6]) + 1;
 		max = (data[7] - data[6]) + 1;
 
-		offset = nodemin;
-		nodesize = (nodes.size() - nedgenode) * neqn;
-		init.read_adap();
-
-		cout << "rank:          " << rank << endl;
-		cout << "element range: " << elemin << " " << elemax << " " << elements.size() << endl;
-		cout << "node range:    " << nodemin << " " << nodemax << " " << nodes.size() << endl;
-		cout << "nedgenode:     " << nedgenode << " left: " << nedgenode_left << endl;
-		cout << "node iter:     " << 0 << " to " << data[7] - data[6] + 1 << endl;//" which is " 
-		cout << "offset:        " << offset << endl;
-		cout << "node size:     " << nodesize << endl;
-							//	 << nodes[0]->number << " to " << nodes[(data[7] - data[6]) + 1]->number << endl;
-
-		gmres = new MPI_GMRES( gmres_rest, gmres_iter, nodesize, neqn, nnod, ndim, size, rank, offset);
-	}
-	
-	~MPIBinaryConfiguration()
-	{
-		delete gmres;
+		node_iterator_min = data[6];
+		node_iterator_max = data[7];
 	}
 
-	void reset_gmres()
-	{
-		delete gmres;
-		gmres = new MPI_GMRES( gmres_rest, gmres_iter, nodesize, neqn, nnod, ndim, size, rank, offset);
-	}
-
-	void Output(std::vector<Element *> &elements, std::vector<Node *> &nodes, int iter, double time, bool ele_data)
-	{
-		MPI_TecplotOut(elements, nodes, iter, ndim, time, ele_data , rank, offset, size, /*nedgenode,*/ nedgenode_left, nnod, neqn);
-	}
-
-	void RMSErr(double t, int iter)
-	{
-		MPI_RMSError<Node *> rmserr("RMSError.txt", t, iter, neqn);
-		for_each(NodeIteratorStart, NodeIteratorEnd, ref(rmserr));
-	}
-
-	void Save(std::vector<Element *> &elements, std::vector<Node *> &nodes, int iter)
-	{
-		std::string savepath = path + "//" + to_string<int>(iter) + "//";
-		boost::filesystem::create_directory(savepath);
-		std::string fname = savepath + "binarynodes";
-		// need to save using MPI functionale
-		// just need to save nodes - element, face correlations remains the same, EXCEPT when you grid refine!
-		// eventually dump an updated control file too
-
-		// TODO FIXME note that these node_t, ele_t are defined in LoadBinary, use those!
-
-		///////////////////
-		// Nodes -> 2d node
-		///////////////////
-		MPI_Datatype TType;		/// node data xfer
-
-		if ( ndim == 3)
-			MPI_Type_contiguous(8, MPI_DOUBLE, &TType);
-		else if (ndim == 2)
-			MPI_Type_contiguous(6, MPI_DOUBLE, &TType);
-		else if (ndim == 1)
-			MPI_Type_contiguous(4, MPI_DOUBLE, &TType);
-		MPI_Type_commit(&TType);
-
-		struct node_t			// TODO check i think we need to make this x[ndim]
-		{
-			double x[2];
-			double rho;
-			double v[2];
-			double T;
-		};
-
-		cout << "writing nodes to Save file " << rank << endl;
-		int nele = nodes.size(); // 10 + rank;					// nodes.size(), nele should be nnod but this var is taken
-		cout << "writing  " << max << " nodes "  << nele << endl;
-//		nele = max;
-		node_t * buf;
-		buf = new node_t[nele];				// elements are unique
-
-		for (int i = 0; i < nele; i++)		// get data from nodes
-		{
-			buf[i].rho = nodes[i]->rho;
-			buf[i].T   = nodes[i]->T;
-			for (int j = 0; j < ndim; j++)
-			{
-				buf[i].x[j] = nodes[i]->x(j);
-				buf[i].v[j] = nodes[i]->v(j);
-			}
-		}
-
-		cout << "opening file" << endl;
-		int size = 0;
-		MPI_Allreduce(&nodemax, &size, 1,MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-
-		MPI_File fh;
-		MPI_File_open(MPI_COMM_WORLD,
-			fname.c_str(),  MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fh);
-
-		MPI_File_set_size(fh, size * sizeof(node_t) );
-
-		cout << "writing shared" << endl;
-		MPI_File_seek(fh, sizeof(node_t)* nodes[0]->number /*nele*rank*/, MPI_SEEK_SET);			// naive as we have overlapping nodes use node iter
-		MPI_File_write(fh, buf, nele, TType, MPI_STATUS_IGNORE); 
-
-		cout << "closing" << endl;
-		MPI_File_close(&fh);
-		cout << "done" << endl;
-
-		/////////////////
-		// elements
-		/////////////////
-		//std::string 
-		
-		fname = savepath + "binaryelements";
-
-		if (ndim == 3)
-			MPI_Type_contiguous(24, MPI_INT, &TType);
-		else if (ndim == 2)
-			MPI_Type_contiguous(8, MPI_INT, &TType);
-		else if (ndim == 1)
-			MPI_Type_contiguous(2, MPI_INT, &TType);
-		MPI_Type_commit(&TType);
-
-		struct ele_t
-		{
-			int node[4];
-			int bc[4];
-		};
-		
-		cout << "writing elements to Save file " << rank << endl;
-		nele = elements.size(); // 10 + rank;					// nodes.size(), nele should be nnod but this var is taken
-		cout << "writing  " << max << " nodes " << nele << endl;
-		//nele = max;
-		ele_t * ebuf;
-		ebuf = new ele_t[nele];				// elements are unique
-
-		for (int i = 0; i < nele; i++)		// get data from nodes
-		{
-			ebuf[i].bc[0] = 0;
-			ebuf[i].bc[1] = 0;
-			ebuf[i].bc[2] = 0;
-			ebuf[i].bc[3] = 0;
-
-			for (int j = 0; j < nnod; j++)		// nodes
-			{
-				ebuf[i].node[j] = elements[i]->node[j]->number;
-			}
-			for (unsigned int j = 0; j < elements[i]->face.size(); j++)		// faces fixme
-			{
-				ebuf[i].bc[elements[i]->face[j]->face] = elements[i]->face[j]->bc;
-			}
-		}
-
-		cout << "opening file" << endl;
-		size = 0;
-		MPI_Allreduce(&elemax, &size, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-
-//		MPI_File fh;
-		MPI_File_open(MPI_COMM_WORLD,
-			fname.c_str(), MPI_MODE_WRONLY | MPI_MODE_CREATE, MPI_INFO_NULL, &fh);
-
-		MPI_File_set_size(fh, size * sizeof(ele_t));
-
-		cout << "writing shared" << endl;
-		MPI_File_seek(fh, sizeof(ele_t)* elements[0]->number /*nele*rank*/, MPI_SEEK_SET);			// naive as we have overlapping nodes use node iter
-		MPI_File_write(fh, ebuf, nele, TType, MPI_STATUS_IGNORE);
-
-		cout << "closing" << endl;
-		MPI_File_close(&fh);
-		cout << "done" << endl;
-
-		// note: this (and grid refinement) is NOT yet mpi capable fixme
-		boost::filesystem::ofstream adapfile(savepath + "adap");
-		for (int i = 0; i < nele; i++)		// get data from nodes
-		{
-			if (elements[i]->adap) // are adap flags being set???
-			{
-				// write file
-				adapfile << elements[i]->number << " "
-					<< elements[i]->adap << " "
-					<< elements[i]->refine_level << " "
-					<< "double "						// FIXME double probably was when i was thinking of converting to single, 2/8/8 unclear
-					<< ndim << " "
-					<< nnod << " "
-					<< nnod << " ";
-				for (int j = 0; j < nnod*nnod; j++)
-				{
-					adapfile << elements[i]->Hnm(j) << " ";
-				}
-				adapfile << endl;
-
-			}
-		}
-		adapfile.close();
-
-		// not sure if this should work for multiple processes
-		for(int i=1; i<9;i++)
-			MPI_Breakdown(elements, nodes, neqn, nnod, savepath, i);
-	}
-	
 	int size;
 	int offset;
 	int nedgenode;
@@ -290,6 +210,7 @@ struct MPIBinaryConfiguration
 	int nodesize;
 	int nodemin, nodemax;
 	int elemin, elemax;
+	int node_iterator_min, node_iterator_max; // allows functionalizatoin, don't like this.
 	std::string path;
 
 	int max;				// int equiv of max iterator
@@ -304,4 +225,8 @@ struct MPIBinaryConfiguration
 	std::vector<Node *>::iterator NodeIteratorStart;
 	std::vector<Node *>::iterator NodeIteratorEnd;
 	GMRESbase * gmres;
+
+public:
+	po::variables_map am;
+	po::variables_map cm;
 };
