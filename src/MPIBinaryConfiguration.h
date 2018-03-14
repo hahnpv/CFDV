@@ -1,24 +1,20 @@
 #pragma once
 
-#include "MPI_Init_CFD.h"
 #include "Utility/IO/MPI_TecplotOut.h"
 #include "FDV/Function/MPI_RMSError.h"
 #include "Utility/Solvers/MPI_GMRES.h"
 #include "Utility/IO/ASCIItoBinary/LoadBinary.h"
 #include "Utility/IO/ASCIItoBinary/SaveBinary.h"
-//#include "MPI_Save.h"
-
 #include "Utility/MPI_Breakdown.h"
 
 #include <iomanip>
-#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
-#include "boost/filesystem/fstream.hpp"   // filestreams, makes avail to other classes and may cause problems?
+#include "boost/filesystem.hpp"				// includes all needed Boost.Filesystem declarations
+#include "boost/filesystem/fstream.hpp"		// filestreams, makes avail to other classes and may cause problems?
 
 #include <functional> // std::ref
 
 #include "boost/program_options.hpp"
 namespace po = boost::program_options;
-
 
 struct MPIBinaryConfiguration
 {
@@ -75,7 +71,6 @@ struct MPIBinaryConfiguration
 		MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 		MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-
 		// TODO combine control+aero into one file with [headers]
 
 		// set up nnod, neqn, ndim
@@ -83,14 +78,13 @@ struct MPIBinaryConfiguration
 		neqn = cm["neqn"].as<int>();							/// Number of equations per node
 		ndim = cm["ndim"].as<int>();							/// Number of dimensions 
 		int nbnod = cm["nbnod"].as<int>();
-
-		LoadBinaryData load(elements, nodes, am, path, nnod, neqn, ndim, nbnod);	// TODO move this into config						/// new binary method
-
 		gmres_iter = cm["gmresiter"].as<int>();					/// Number of GMRES iterations
-		gmres_rest = cm["gmresrestart"].as<int>();					/// Number of GMRES restarts
+		gmres_rest = cm["gmresrestart"].as<int>();				/// Number of GMRES restarts
 
+		LoadBinaryData load(elements, nodes, path, nnod, neqn, ndim, nbnod);	// TODO move this into config						/// new binary method
 
 		read_mpi();
+		add_thermo(am);											/// NOTE: must do this before reading nodes
 		load.read_nodes(nodemin, nodemax);		
 		load.read_elements(elemin, elemax);	
 
@@ -150,8 +144,25 @@ struct MPIBinaryConfiguration
 		save->write_elements(elemin, elemax);
 		save->write_adap();
 
+		MPI_Breakdown::clear(savepath);
 		for(int i=1; i<9;i++)
 			MPI_Breakdown(elements, nodes, neqn, nnod, savepath, i);
+	}
+
+	/// Create the thermodynamic property structure
+	void add_thermo(po::variables_map am)
+	{
+		Thermo & thermo = Thermo::Instance();
+
+		thermo.setGamma(am["gamma"].as<double>());
+		thermo.Pr = am["Pr"].as<double>();
+		thermo.csuth = 110.0 / am["Tinf"].as<double>();
+		thermo.cmach = am["M"].as<double>();
+		thermo.Cv = 1. / thermo.gamma / (thermo.gamma - 1.0) / pow(thermo.cmach, 2);
+		thermo.cgas = 1.0 / 1.4 / pow(thermo.cmach, 2);
+		thermo.creyn = am["Re"].as<double>();
+		thermo.Twall = am["Twall"].as<double>();
+		thermo.adiabatic = am["Adiabatic"].as<bool>();
 	}
 
 	void read_mpi()

@@ -1,5 +1,4 @@
 set(util_source_files
-  dictionary.h
   IO/ASCIItoBinary
   IO/ASCIItoBinary/LoadBinary.h
   IO/ASCIItoBinary/SaveBinary.h

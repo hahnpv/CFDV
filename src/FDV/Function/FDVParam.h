@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Thermo.h"
+#include <cmath>
 
 // Calculate the FDV parameters
 
@@ -14,9 +15,8 @@ template<class E> struct FDVParam : public unary_function<E, void>
 	void operator() (E e, double & s1, double & s2, double & s3, double & s4) 
 	{
 		Thermo & thermo = Thermo::Instance();
-	
+
 		double r = 0;
-			
 		double M_min = 0;
 		double M_max = 0;
 		double Re_min = 0;

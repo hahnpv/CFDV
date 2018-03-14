@@ -6,7 +6,6 @@
 
 #include "../../../FDV/Thermo.h"
 #include "../../../FiniteElement/get_face.h"
-#include "../../dictionary.h"
 #include "../../split.h"
 
 #include "../../../FDV/Element.h"
@@ -102,8 +101,7 @@ struct LoadBinaryData
 	LoadBinaryData(
 			 std::vector< Element * > & elements,
 			 std::vector< Node *> & nodes,
-	  	     po::variables_map am,
-			 std::string path,
+	 		 std::string path,
 			 int nnod, int neqn, int ndim, int nbnod
 		)
 			 :	elements( elements),
@@ -113,9 +111,7 @@ struct LoadBinaryData
 				neqn(neqn),
 				ndim(ndim),
 				nbnod(nbnod)
-	{
-		add_thermo(am);
-	}
+	{}
 	
 	void read_elements(int min, int max, std::string fname = "//binaryelements")
 	{
@@ -342,21 +338,6 @@ struct LoadBinaryData
 				}
 			}
 		}
-	}
-		/// Create the thermodynamic property structure
-	void add_thermo(po::variables_map am)
-	{
-		Thermo & thermo = Thermo::Instance();
-
-		thermo.setGamma( am["gamma"].as<double>());
-		thermo.Pr    = am["Pr"].as<double>();
-		thermo.csuth = 110.0 / am["Tinf"].as<double>();
-		thermo.cmach = am["M"].as<double>();
-		thermo.Cv    = 1./thermo.gamma/(thermo.gamma-1.0)/pow(thermo.cmach, 2);
-		thermo.cgas  = 1.0/1.4/pow(thermo.cmach, 2);
-		thermo.creyn = am["Re"].as<double>();
-		thermo.Twall = am["Twall"].as<double>();
-		thermo.adiabatic = am["Adiabatic"].as<bool>();
 	}
 
 	std::vector< Element * > & elements;

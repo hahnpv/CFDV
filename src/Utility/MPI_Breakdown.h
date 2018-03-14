@@ -9,7 +9,6 @@
 
 
 #include <vector>
-// #include "dictionary.h"
 #include <iostream>
 using namespace std;
 struct MPI_Breakdown
@@ -148,7 +147,6 @@ struct MPI_Breakdown
 	}
 
 private:
-
 	std::vector<Node *> & nodes;
 	std::vector<Element *> & elements;
 

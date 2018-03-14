@@ -1,5 +1,6 @@
 #pragma once
 #include "../Utility/Singleton.h"
+#include <cmath>
 #include <iostream>
 using namespace std;
 
