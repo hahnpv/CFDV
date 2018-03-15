@@ -3,6 +3,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g")
 
 cmake_minimum_required (VERSION 2.6)
 project (CFDV)
@@ -28,11 +29,11 @@ ${Boost_INCLUDE_DIR}
 "${CMAKE_SOURCE_DIR}/FDV/Function")
 
 add_executable(CFDV main.cpp)
-add_executable(CONVERT ExtractMain.cpp)
-add_executable(EXTRACT ConvertMain.cpp)
+#add_executable(EXTRACT ExtractMain.cpp)
+add_executable(CONVERT ConvertMain.cpp)
 
 target_link_libraries(CFDV ${MPI_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(EXTRACT ${MPI_LIBRARIES} ${Boost_LIBRARIES})
+#target_link_libraries(EXTRACT ${MPI_LIBRARIES} ${Boost_LIBRARIES})
 target_link_libraries(CONVERT ${MPI_LIBRARIES} ${Boost_LIBRARIES})
 
 
