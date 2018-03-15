@@ -91,7 +91,6 @@ struct MPIBinaryConfiguration
 		cout << "nodes.size: " << nodes.size() << endl;
 
 		NodeIteratorStart = nodes.begin();
-//		NodeIteratorEnd = nodes.begin() + (data[7] - data[6]) + 1;
 		NodeIteratorEnd = nodes.begin() + (node_iterator_max - node_iterator_min) + 1;
 
 		offset = nodemin;
@@ -115,6 +114,7 @@ struct MPIBinaryConfiguration
 	
 	~MPIBinaryConfiguration()
 	{
+		MPI_Finalize();
 		delete gmres;
 	}
 

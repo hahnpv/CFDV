@@ -131,6 +131,8 @@ timer_l.start();
 	if (vm["adap"].as<bool>())
 	{
 		cout << "Performing grid refinement..." << endl;
+		for_each(nodes.begin(), nodes.end(), NodeUnpack<Node *>());								/// extract nodes
+		for_each(nodes.begin(), nodes.end(), NodeCheck<Node *>());								/// check for invalid nodal values
 		std::vector<int> elelist;			// elements to be refined
 		std::vector<int> refine_level;		// breakpoints for each level refine
 		AdaptiveRefineList<Element, Node>(elelist, refine_level, elements, nodes, nnod, nface);
@@ -168,6 +170,7 @@ timer_l.start();
 		/* 
 		// extrap consvar within elements for "6" BC
 		// 2D quad only FIXME does not work for tri
+		// FIXME TODO should be using test functions to get direction normal to face
 //		cout << "extrap" << endl;
 		for (int e = 0; e < elements.size(); e++)
 		{
@@ -240,8 +243,6 @@ timer_l.start();
 	config->Save(elements, nodes, iter);								// TODO add updated config files?
 
 	delete config;
-    
-	MPI_Finalize(); 
-	
+
 	return 0;
 }

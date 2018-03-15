@@ -159,10 +159,11 @@ struct SaveBinaryData
 			if (elements[i]->adap) // are adap flags being set???
 			{
 				// write file
+				// FIXME you have overloaded << for tensors...
 				adapfile << elements[i]->number << " "
 					<< elements[i]->adap << " "
 					<< elements[i]->refine_level << " "
-					<< "double "						// FIXME double probably was when i was thinking of converting to single, 2/8/8 unclear
+					<< "double "						// FIXME double probably was when i was thinking of converting to single
 					<< ndim << " "
 					<< nnod << " "
 					<< nnod << " ";
@@ -171,7 +172,6 @@ struct SaveBinaryData
 					adapfile << elements[i]->Hnm(j) << " ";
 				}
 				adapfile << endl;
-
 			}
 		}
 		adapfile.close();
