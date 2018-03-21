@@ -159,15 +159,15 @@ timer_l.start();
 
 		for_each(nodes.begin(), nodes.end(), NodeCheck<Node *>());								/// check for invalid nodal values
 
-		if (iter % 100 == 0) config->Save(elements, nodes, iter);								// TODO add updated config files?
+		if (iter % 1000 == 0) config->Save(elements, nodes, iter);								// TODO add updated config files?
 
 		CFL<Element *>(elements, cfl, dt);														/// Update CFL number
 
 		if (config->rank == 0) cout << "dt: " << dt << endl;
 
-		if (iter % 1 == 0 )	config->Output(elements, nodes, iter, t, true);					/// Tecplot output, deprecate for Save
+		if (iter % 100 == 0 )	config->Output(elements, nodes, iter, t, true);					/// Tecplot output, deprecate for Save
 
-		/* 
+
 		// extrap consvar within elements for "6" BC
 		// 2D quad only FIXME does not work for tri
 		// FIXME TODO should be using test functions to get direction normal to face
@@ -203,7 +203,6 @@ timer_l.start();
 				}
 			}
 		}
-		*/
 
 		if (ndim == 3)
 		{

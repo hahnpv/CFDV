@@ -146,7 +146,7 @@ struct MPIBinaryConfiguration
 		save->write_adap();
 
 		MPI_Breakdown::clear(savepath);
-		for(int i=1; i<9;i++)
+		for(int i=1; i<17;i++)
 			MPI_Breakdown(elements, nodes, neqn, nnod, savepath, i);
 	}
 

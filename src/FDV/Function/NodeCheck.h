@@ -32,7 +32,9 @@ template<class T> struct NodeCheck : public unary_function<T, void>
 				cout << n->x(i) << " ";
 			}
 			
-			cout << endl;		
+			cout << endl;
+
+//			n->T = 0.;
 		}
 
 		if ( n->p < 0)
@@ -45,6 +47,8 @@ template<class T> struct NodeCheck : public unary_function<T, void>
 			}
 			
 			cout << endl;
+
+//			n->p = 0.;
 		}
 	}
 };

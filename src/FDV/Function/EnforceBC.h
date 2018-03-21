@@ -16,11 +16,17 @@ template<class N> struct EnforceBC : public unary_function<N, void>
 	//	{
 //		if (e->bc != 1)
 //		{
-			for (int i=0; i < ndim+1; i++)			// rho, v[]
+			if (n->dirichlet(0))
+			{
+				n->U(0) = n->U0(0);
+			}
+
+			for (int i=1; i < ndim+1; i++)			// rho, v[]
 			{
 				if (n->dirichlet(i))
 				{
-					n->U(i) = n->U0(i);
+//					n->U(i) = n->U0(i);
+					n->U(i)  = ((n->U0(i)) / (n->U0(0))) * n->U(0);
 				}
 			}
 			if (n->dirichlet(ndim+1))				// E
