@@ -22,17 +22,17 @@
 struct AsciiLoad
 {
 	AsciiLoad( std::vector<std::string> & args,
-			 std::vector< Element * > & elements, 
-			 std::vector< Node *> & nodes 
+			 std::vector< Element * > & elements,
+			 std::vector< Node *> & nodes
 			 )
 			: elements(elements),
 			  nodes(nodes)
 	{
-	
+
 		// args points to DIRECTORY instead of FILES.
 		// Load will create bad paths dont use them
 
-		path = args[1];
+		path = args[1] + "//";
 
 		cout << "path: " << path << endl;
 		cout << "aeropath: " << path + "//aero" << endl;
@@ -56,7 +56,7 @@ struct AsciiLoad
 
 		cout << "adding thermo" << endl;
 		// need to set up thermo before nodes
-		add_thermo();	
+		add_thermo();
 
 		// Load nodes, elements, faces. Add parameters for min and max. 
 		// Call MPIConfiguration prior to this and use parameters for our rank.

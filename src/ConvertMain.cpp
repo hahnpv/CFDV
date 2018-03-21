@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
 	for (int i=0; i<argc; i++)
 	{
 		args.push_back( string(argv[i]) );
+		cout << "argument " << string(argv[i]) << endl;
 	}
 
 	std::vector< Node *> nodes;
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
 
 	for_each(nodes.begin(), nodes.end(), NodeUnpack<Node *>());
 	cout << "saving binary data ... " << endl;
-	std::string savepath = path + "//test";
+	std::string savepath = path;
 	boost::filesystem::create_directory(savepath);
 
 	// SaveBinaryData makes implicit MPI assumptions. May revisit
