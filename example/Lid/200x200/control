@@ -1,0 +1,13 @@
+itermax = 1000000
+cfl = 1.
+gmresrestart = 1
+gmresiter = 20
+ndim = 2
+nnod = 4
+neqn = 4
+nbnod = 2
+nface = 4
+nodes = 40000
+elements = 39601
+iter = 0
+adap = 0

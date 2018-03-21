@@ -20,7 +20,7 @@
 #include "FDV/FDVGalerkin.h"
 
 	// Dirichlet BC
-//#include "FDV/Function/ApplyBC.h"
+#include "FDV/Function/ApplyBC.h"
 #include "FDV/Function/EnforceBC.h"
 
 	// CFD Utility
@@ -229,7 +229,8 @@ timer_l.start();
 		config->gmres->iterate(elements);														/// Solve via GMRES
 		config->gmres->update(nodes);
 
-		for_each(nodes.begin(), nodes.end(), EnforceBC<Node *>(ndim));							/// Enforce Dirichlet boundary conditions
+//		for_each(elements.begin(), elements.end(), ApplyBC<Element *>(neqn, nnod, ndim, nbnod));			/// FIXME this doesn't work at all
+		for_each(nodes.begin(), nodes.end(), EnforceBC<Node *>(ndim));							/// Enforce Dirichlet boundary conditions by brute force
 		config->RMSErr(t, iter);																/// Calculate residuals FIXME for adap grids
 		
 		t += dt;
