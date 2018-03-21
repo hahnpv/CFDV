@@ -199,12 +199,15 @@ protected:
 			nodes[i]->x(j)	= node[j+1];
 		}
 
+		// FIXME: following code took rho/u/v/T and converted into consvar.
+		// so long as you input consvar this is never needed
+		// make it a flagged input or delete to eliminate confusion
 		// Build the conservation variable
 		for(int j=0; j<ndim+2; j++)
 		{
 			nodes[i]->U(j) = node[(unsigned int)ndim+1+j];
 		}
-
+/*
 		// conversion from E input to T input:
 		nodes[i]->U((unsigned int)ndim+1) *= thermo.Cv;					// *= Cv
 
@@ -217,7 +220,7 @@ protected:
 
 		nodes[i]->U((unsigned int)ndim+1) += 0.5 * v;					// sum 1/2*V^2
 		nodes[i]->U((unsigned int)ndim+1) *= nodes[i]->U(0);			// times rho
-
+*/
 //		double bc = node[2*(unsigned int)ndim+3];		// number,x,y,rho,u,v,T, bc=7 for 2D
 														// number,x,y,z,rho,u,v,w,T, bc=9 for 3D -> 2*ndim+3
 //		nodes[i]->bc   = (int)bc;						// currently only time its used is to flat Adiabatic in applybc
