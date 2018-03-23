@@ -23,67 +23,76 @@ template<class T> struct ApplyBC : public unary_function<T, void>
 		Thermo & thermo = Thermo::Instance();
 		double Cv = thermo.Cv;
 		double Twall = thermo.Twall;
-/*
+
+		// Iterate over faces
 		for (int f = 0; f < e->face.size(); f++)
 		{
-			for (int i = 0; i < nbnod; i++)
+			// FIXME this never hits!
+			for (int inode = 0; inode < nbnod; inode++)									// face node iterator 1
 			{
-				int ni = e->face[f]->n(i);
-				for (int j = 0; j < neqn; j++)		// skip E for now ... E not the problem... rhs is.
+				int ia = e->face[f]->n(inode);
+				for (int ieqn = 0; ieqn < neqn; ieqn++)									// face node equation iterator 1
 				{
-					if (e->node[ ni ]->dirichlet(j))
+					int irow = neqn * ia + ieqn;
+					for (int jnode = 0; jnode < nbnod; jnode++)							// face node iterator 2
 					{
-						for (int ii = 0; ii < nnod*neqn; ii++)
+						int ja = e->face[f]->n(jnode);
+						for (int jeqn = 0; jeqn < neqn; jeqn++)							// face node equation iterator 2
 						{
-//							e->R(ii, i*neqn + j) = 0;
-							e->R(ni*neqn + j, ii) = 0;
-						}
-						for (int ii = 0; ii < nbnod; ii++)
-						{
-							for (int jj = 0; jj < neqn; jj++)
+							int icol = neqn * ja + jeqn;
+
+							// dirichlet. Note: this is a face property not a nodal one. FIXME
+							if (e->node[ia]->dirichlet(ieqn))
 							{
-								e->R( ni * neqn + jj, ni * neqn + j) = 0;
+		/*						// If Wall, [this is not working] FIXME doesnt work / matrix looks f'd
+								if (e->face[f]->bc == 1 && ieqn==neqn-1	)
+								{
+									int jcol = icol - (ndim + 1);							// points to rho when you are on energy term
+									if (irow != icol)
+									{
+										e->R(irow, jcol) += e->R(irow, icol) * Cv * Twall;
+										e->R(irow, icol) = 0.;
+									}
+									else
+									{
+										for (int k = 0; k < neqn*nnod; k++)
+										{
+											e->R(irow, k) = 0.;
+										}
+										e->R(irow, jcol) = -Cv * Twall * 0.5;
+										e->R(irow, icol) = 0.5;
+										e->rhs(irow) = 0.;
+									}
+								}
+	*/							
+								// If non-wall 
+//								if (e->face[f]->bc == -1)			// this appears to be working! inflow
+								{
+									e->R(irow, icol) = 0.;
+									e->rhs(irow) = 0.;
+									if (irow == icol)
+									{
+										for (int k = 0; k < neqn*nnod; k++)
+										{
+											e->R(irow, k) = 0.;
+										}
+										e->R(irow, icol) = 0.5;
+									}
+								}
 							}
 						}
-
-						e->R(ni*neqn + j, ni*neqn + j) = e->node[ni]->coeff;
-						e->rhs(ni*neqn + j) = e->node[ni]->coeff * e->node[ni]->U0(j);
-
-						if (j == neqn-1 && !e->node[ni]->dirichlet(0) )			// verify this term is ok. (flat plate)
-						{
-							e->rhs(ni*neqn + j) = 0.;
-	//						e->R(i*neqn+j, i*neqn) = -Cv * Twall * e->node[i]->coeff;
-						}
-					}	
+					}
 				}
 			}
-		}
-*/
-
-		for (int i = 0; i < nnod; i++)
-		{
-			for (int j = 0; j < neqn; j++)		// skip E for now ... E not the problem... rhs is.
+			/*
+			if (e->face[f]->bc == 1)
 			{
-				if (e->node[i]->dirichlet(j))
-				{
-					for (int ii = 0; ii < nnod*neqn; ii++)
-					{
-						e->R(ii, i*neqn + j) = 0;
-						e->R(i*neqn + j, ii) = 0;
-					}
-
-					e->R(i*neqn + j, i*neqn + j) = e->node[i]->coeff;
-					e->rhs(i*neqn + j) = e->node[i]->coeff * e->node[i]->U0(j);
-
-					if (j == neqn-1 && !e->node[i]->dirichlet(0) )			// verify this term is ok. (flat plate)
-					{
-						e->rhs(i*neqn + j) = 0.;
-//						e->R(i*neqn+j, i*neqn) = -Cv * Twall * e->node[i]->coeff;
-					}
-				}	
+				cout << e->R << endl << endl;
+				cout << e->rhs << endl << endl;
+				cout << endl;
 			}
+			*/
 		}
-
 	}
 
 	int neqn;

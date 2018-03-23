@@ -165,7 +165,8 @@ timer_l.start();
 
 		if (config->rank == 0) cout << "dt: " << dt << endl;
 
-		if (iter % 100 == 0 )	config->Output(elements, nodes, iter, t, true);					/// Tecplot output, deprecate for Save
+		//if (iter % 100 == 0 )	
+			config->Output(elements, nodes, iter, t, true);					/// Tecplot output, deprecate for Save
 
 
 		// extrap consvar within elements for "6" BC
@@ -226,11 +227,12 @@ timer_l.start();
 			for_each(elements.begin(), elements.end(), AxisymmetricFlow<Element *>(neqn, nnod));	/// Axisym 2pi
 		}
 
+		for_each(elements.begin(), elements.end(), ApplyBC<Element *>(neqn, nnod, ndim, nbnod));			/// FIXME this doesn't work at all
+
 		config->gmres->iterate(elements);														/// Solve via GMRES
 		config->gmres->update(nodes);
 
-//		for_each(elements.begin(), elements.end(), ApplyBC<Element *>(neqn, nnod, ndim, nbnod));			/// FIXME this doesn't work at all
-		for_each(nodes.begin(), nodes.end(), EnforceBC<Node *>(ndim));							/// Enforce Dirichlet boundary conditions by brute force
+//		for_each(nodes.begin(), nodes.end(), EnforceBC<Node *>(ndim));							/// Enforce Dirichlet boundary conditions by brute force
 		config->RMSErr(t, iter);																/// Calculate residuals FIXME for adap grids
 		
 		t += dt;
