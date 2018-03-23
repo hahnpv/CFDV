@@ -3,5 +3,5 @@ Pr = 0.72
 Re = 3000
 Tinf = 216.666
 Twall = 81
-Adiabatic = 0
+Adiabatic = 1
 gamma = 1.4

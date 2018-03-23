@@ -229,6 +229,9 @@ timer_l.start();
 
 		for_each(elements.begin(), elements.end(), ApplyBC<Element *>(neqn, nnod, ndim, nbnod));			/// FIXME this doesn't work at all
 
+		// hax
+
+
 		config->gmres->iterate(elements);														/// Solve via GMRES
 		config->gmres->update(nodes);
 

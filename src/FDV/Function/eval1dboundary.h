@@ -48,7 +48,8 @@ void eval1dboundary(int ibndcnd, Flow & flow, std::vector<Node *> & node, Tensor
 					flow.dU(i, 1) = 0.0;
 				}
 			*/
-				flow.dT(0) -= dot(flow.dT, n) * n(0); 
+				// FIXME adiabatic only?
+				flow.dT(0) -= dot(flow.dT, n) * n(0);
 				flow.dT(1) -= dot(flow.dT, n) * n(1);
 
 				// flow.dV = 0 since v at all nodes = 0.
