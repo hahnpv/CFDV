@@ -27,7 +27,7 @@ struct DataStructAv
 	double data[5];			// neqn
 };
 
-struct NodeStruct	
+struct NodeStruct
 {
 	double index;
 	double node;
@@ -40,7 +40,7 @@ struct NodeStruct
 	/// Needs generalization and testing under harsh conditions.
 	/// Needs to be more efficient.
 	/// Then extension to 3D.
-	
+
 #include "GMRESbase.h"
 
 struct MPI_GMRES : public GMRESbase
@@ -125,7 +125,7 @@ struct MPI_GMRES : public GMRESbase
 	void iterate( std::vector< Element *> & elements )
 	{
 		MPI_Barrier(MPI_COMM_WORLD);
-		cout << "MPI_GMRES::Iterate" << endl;
+//		cout << "MPI_GMRES::Iterate" << endl;
 
 		if (!do_once)
 		{
@@ -134,7 +134,7 @@ struct MPI_GMRES : public GMRESbase
 		}
 
 		du.clear();
-		
+
 		compose_rhs(elements);				// clear, then compose b
 
 		double tol = MPImag(b) * 1.0E-9;	// calculate tolerence for convergence (to quit gmres restarts early)

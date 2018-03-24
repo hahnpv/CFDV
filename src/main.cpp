@@ -61,7 +61,7 @@ po::variables_map add_program_options(int argc, char * argv[])
 		("path", po::value<std::string>(),				  "Path to CFD case")
 		("adap", po::bool_switch()->default_value(false), "Grid Adaptation flag")
 		;
- 
+
 	po::positional_options_description p;
 	p.add("path", -1);
 
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 
 	std::vector< Node *> nodes;
 	std::vector< Element *> elements;
-	
+
 	MPIBinaryConfiguration * config = new MPIBinaryConfiguration(argc, argv, vm, elements, nodes, vm["path"].as<std::string>());
 
 	int iter   = config->cm["iter"].as<int>();
@@ -149,7 +149,8 @@ timer_l.start();
 	/// CFD Integration ///
 	for (; iter < itermax; iter++)
 	{
-		cout << " t = " << t << ", iteration " << iter << endl;
+		if (config->rank == 0)
+			cout << " t = " << t << ", iteration " << iter << endl;
 
 		timer.reset();
 
@@ -165,10 +166,10 @@ timer_l.start();
 
 		if (config->rank == 0) cout << "dt: " << dt << endl;
 
-		//if (iter % 100 == 0 )	
+		if (iter % 100 == 0 )	
 			config->Output(elements, nodes, iter, t, true);					/// Tecplot output, deprecate for Save
 
-
+/*
 		// extrap consvar within elements for "6" BC
 		// 2D quad only FIXME does not work for tri
 		// FIXME TODO should be using test functions to get direction normal to face
@@ -204,7 +205,7 @@ timer_l.start();
 				}
 			}
 		}
-
+*/
 		if (ndim == 3)
 		{
 			FDVGalerkin<Element *, NavierStokes3D> fdv( nnod, neqn, ndim, nbnod, dt);
@@ -234,14 +235,13 @@ timer_l.start();
 
 		config->gmres->iterate(elements);														/// Solve via GMRES
 		config->gmres->update(nodes);
-
-//		for_each(nodes.begin(), nodes.end(), EnforceBC<Node *>(ndim));							/// Enforce Dirichlet boundary conditions by brute force
 		config->RMSErr(t, iter);																/// Calculate residuals FIXME for adap grids
-		
+
 		t += dt;
-		
+
 		timer_l.stop();
-		cout << "time: " << timer_l.read() << endl;
+		if(config->rank == 0)
+			cout << "time: " << timer_l.read() << endl;
 		timer.check(iter, t, dt);
 	}
 

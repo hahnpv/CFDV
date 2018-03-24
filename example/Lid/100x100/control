@@ -1,4 +1,3 @@
-! control file
 itermax = 100000
 cfl = 0.25
 gmresrestart = 1
