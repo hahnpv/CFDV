@@ -49,10 +49,10 @@ double coth( double x)
 
 }
 
-template<class T, class NavierStokes >
+template<class T >
 struct FDVGalerkin : public unary_function<T, void>
 {
-	FDVGalerkin(const int nnod, const int neqn, const int ndim, const int nbnod, double dt)
+	FDVGalerkin(const int nnod, const int neqn, const int ndim, const int nbnod, double dt,NavierStokes * NS)
 		:	g(ndim,neqn,neqn),					
 			h(ndim,ndim,neqn,neqn),
 			p(nnod,ndim,neqn),
@@ -75,13 +75,14 @@ struct FDVGalerkin : public unary_function<T, void>
 			b(ndim,neqn,neqn),
 			c(ndim,ndim,neqn,neqn),
 			d(neqn,neqn),
-			nd(ndim, neqn, neqn)
+			nd(ndim, neqn, neqn),
+		    NS(NS)
 	{
 		B.resize(nnod);
 		G.resize(nnod);
 		F.resize(nnod);
 
-		NS = new NavierStokes();
+//		NS = new NavierStokes();
 		for (int i=0; i<nnod; i++)
 		{
 			F[i] = new Tensor<double, 2>(ndim, neqn);
@@ -99,7 +100,7 @@ struct FDVGalerkin : public unary_function<T, void>
 */
 	~FDVGalerkin()
 	{
-		delete NS;
+//		delete NS;
 
 		for (int i=0; i<nnod; i++)
 		{
@@ -109,7 +110,7 @@ struct FDVGalerkin : public unary_function<T, void>
 		}		
 	}
 
-	FDVGalerkin<T, NavierStokes> & operator[](double deltat)
+	FDVGalerkin<T > & operator[](double deltat)
 	{
 		dt = deltat;
 		dtsq_2 = pow(deltat, 2.0) / 2.0;
@@ -130,19 +131,19 @@ struct FDVGalerkin : public unary_function<T, void>
 		// 2D Element Quadrature
 		if (ndim == 2)
 		{
-			gq.two(this,&FDVGalerkin<T, NavierStokes>::domain);
-			gq.one(this,&FDVGalerkin<T, NavierStokes>::boundary);
+			gq.two(this,&FDVGalerkin<T>::domain);
+			gq.one(this,&FDVGalerkin<T>::boundary);
 		}
 
 		// 3D Element Quadrature
 		else if (ndim == 3)
 		{
-			gq.three(this,&FDVGalerkin<T, NavierStokes>::domain);
-			gq.two(this,&FDVGalerkin<T, NavierStokes>::boundary);
+			gq.three(this,&FDVGalerkin<T>::domain);
+			gq.two(this,&FDVGalerkin<T>::boundary);
 		}
 		else if (ndim == 1)
 		{
-			gq.one(this,&FDVGalerkin<T, NavierStokes>::domain);
+			gq.one(this,&FDVGalerkin<T>::domain);
 //			gq.one(this,&FDVGalerkin<T, NavierStokes>::boundary);			// not sure how to handle ... 
 			Tensor<double, 1> w(1);
 			w(0) = 1.;

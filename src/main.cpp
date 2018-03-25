@@ -123,6 +123,13 @@ int main(int argc, char *argv[])
 	Sensor * sensors = new Sensor(vm["path"].as<std::string>() + "//sensors", ndim, nodes);
 
 	// try to move FDV up here, N-S selector struct?
+	NavierStokes * NS;
+	if (ndim == 1)
+		NS = new NavierStokes1D;
+	else if (ndim == 2)
+		NS = new NavierStokes2D;
+	else
+		NS = new NavierStokes3D;
 
 	// can move somewhere else? its a mess here
 	IterationTimer timer(config->rank);
@@ -213,6 +220,7 @@ timer_l.start();
 			}
 		}
 */
+		/*
 		if (ndim == 3)
 		{
 			FDVGalerkin<Element *, NavierStokes3D> fdv( nnod, neqn, ndim, nbnod, dt);
@@ -228,6 +236,10 @@ timer_l.start();
 			FDVGalerkin<Element *, NavierStokes1D> fdv( nnod, neqn, ndim, nbnod, dt);
 			for_each(elements.begin(), elements.end(), ref(fdv));
 		}
+		*/
+
+		FDVGalerkin<Element *> fdv(nnod, neqn, ndim, nbnod, dt, NS);
+		for_each(elements.begin(), elements.end(), ref(fdv));
 
 		if (config->cm["axi"].as<bool>())
 		{
@@ -256,6 +268,7 @@ timer_l.start();
 
 	delete sensors;
 	delete config;
+	delete NS;
 
 	return 0;
 }
