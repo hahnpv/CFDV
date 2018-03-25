@@ -1,11 +1,11 @@
-#ifdef __GNUC__
-	#include <tr1/functional>			/// ref wrapper (STL TR1 gcc)
-	using namespace std::tr1;
-#else
+//#ifdef __GNUC__
+//	#include <tr1/functional>			/// ref wrapper (STL TR1 gcc)
+//	using namespace std::tr1;
+//#else
 	#include <functional>					/// ref wrapper (STL TR1 msvc)
 // Floating Point Break on NaN (windows debugging)
 //unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
-#endif
+//#endif
 
 #include "Utility/Tensor.h"
 

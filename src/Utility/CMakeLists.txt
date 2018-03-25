@@ -6,6 +6,7 @@ set(util_source_files
   MPI_Breakdown.h
   parse.h
   PrecisionTimer.h
+  Sensor.h
   Singleton.h
   Solvers/GMRES.h
   Solvers/GMRESbase.h

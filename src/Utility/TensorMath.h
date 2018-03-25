@@ -21,6 +21,22 @@ Tensor<T, ndim> operator+( Tensor<T, ndim> & left, Tensor<T, ndim> & right)
 	return result;
 }
 
+// Subtraction of two tensors - so long as indices align, and dimensions match,
+// it does not matter, we just add the two data structures.
+template<class T, int ndim>
+Tensor<T, ndim> operator-(Tensor<T, ndim> & left, Tensor<T, ndim> & right)
+{
+	//	Tensor<T, ndim> result = left;
+	Tensor<T, ndim> result(left.imax(), left.jmax(), left.kmax(), left.lmax());
+
+	for (int i = 0; i < result.ref->size; i++)
+	{
+		result.ref->data[i] = left.ref->data[i] - right.ref->data[i];
+	}
+
+	return result;
+}
+
 	// Multiplication of a scalar
 template<class T, int ndim>
 Tensor<T, ndim> operator*(Tensor<T, ndim> & left, T c)		// T * c

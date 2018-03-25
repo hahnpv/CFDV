@@ -1,5 +1,5 @@
 tmax = 100
-itermax = 1001
+itermax = 10001
 cfl = 1.0
 gmresrestart = 1
 gmresiter = 100

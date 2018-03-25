@@ -1,6 +1,6 @@
-M = 3.0
+M = 0.3
 Pr = 0.72
-Re = 1000.0
+Re = 100.0
 Tinf = 216.6666
 Twall = 2.8
 Adiabatic = 1

@@ -1,13 +1,13 @@
 #include "mpi.h"
 
-#ifdef __GNUC__
-	#include <tr1/functional>			/// ref wrapper (STL TR1 gcc)
-	using namespace std::tr1;
-#else
+//#ifdef __GNUC__
+//	#include <tr1/functional>			/// ref wrapper (STL TR1 gcc)
+//	using namespace std::tr1;
+//#else
 	#include <functional>					/// ref wrapper (STL TR1 msvc)
 // Floating Point Break on NaN (windows debugging)
-//unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
-#endif
+///unsigned int fp_control_state = _controlfp(_EM_INEXACT, _MCW_EM);
+//#endif
 
 #include <algorithm>					/// for_each
 
@@ -33,6 +33,9 @@
 
 	// Input
 #include "Utility/IO/ASCIItoBinary/LoadBinary.h"
+
+	// Sensors
+#include "Utility/Sensor.h"
 
 	// Non-CFD
 #include <boost/timer.hpp>
@@ -117,6 +120,8 @@ int main(int argc, char *argv[])
 	CalcLength<Element *> cl(ndim, nnod);
 	for_each(elements.begin(), elements.end(), ref( cl));		// calculate characteristic length
 
+	Sensor * sensors = new Sensor(vm["path"].as<std::string>() + "//sensors", ndim, nodes);
+
 	// try to move FDV up here, N-S selector struct?
 
 	// can move somewhere else? its a mess here
@@ -160,13 +165,15 @@ timer_l.start();
 
 		for_each(nodes.begin(), nodes.end(), NodeCheck<Node *>());								/// check for invalid nodal values
 
+		if (config->rank == 0)	sensors->update(iter);		// FIXME: this means rank 0 has all nodes!?
+
 		if (iter % 1000 == 0) config->Save(elements, nodes, iter);								// TODO add updated config files?
 
 		CFL<Element *>(elements, cfl, dt);														/// Update CFL number
 
 		if (config->rank == 0) cout << "dt: " << dt << endl;
 
-		if (iter % 100 == 0 )	
+		if (iter % 100 == 0 )
 			config->Output(elements, nodes, iter, t, true);					/// Tecplot output, deprecate for Save
 
 /*
@@ -247,6 +254,7 @@ timer_l.start();
 
 	config->Save(elements, nodes, iter);								// TODO add updated config files?
 
+	delete sensors;
 	delete config;
 
 	return 0;
