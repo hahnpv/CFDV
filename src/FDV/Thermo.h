@@ -18,6 +18,21 @@ public:
 		gm3d2 = ((gamma - 3.0)/2.0);
 	}
 
+	/// Create the thermodynamic property structure
+	void set(double gamma, double M, double Re, double Prt, double Tinf, double Tw, bool Adiabatic)
+	{
+		setGamma(gamma);
+		Pr = Prt;
+		csuth = 110.0 / Tinf;
+		cmach = M;
+		Cv = 1. / gamma / (gamma - 1.0) / pow(M, 2);
+		cgas = 1.0 / gamma / pow(M, 2);
+		creyn = Re;
+		Twall = Tw;
+		adiabatic = Adiabatic;
+	}
+
+
 	double gamma;
 	double gamm1;
 	double gm1d2;
@@ -59,7 +74,7 @@ public:
 		return mu / ( (gamma-1.0)*(cmach*cmach)*Pr );
 	}
 
-protected: 
+protected:
     Thermo()									// default constructor 
 	{}
 private:

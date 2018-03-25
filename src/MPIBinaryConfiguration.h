@@ -85,7 +85,16 @@ struct MPIBinaryConfiguration
 		LoadBinaryData load(elements, nodes, path, nnod, neqn, ndim, nbnod);	// TODO move this into config						/// new binary method
 
 		read_mpi();
-		add_thermo(am);											/// NOTE: must do this before reading nodes
+
+		Thermo & thermo = Thermo::Instance();
+		thermo.set(am["gamma"].as<double>(),
+			am["M"].as<double>(),
+			am["Re"].as<double>(),
+			am["Pr"].as<double>(),
+			am["Tinf"].as<double>(),
+			am["Twall"].as<double>(),
+			am["Adiabatic"].as<bool>());
+
 		load.read_nodes(nodemin, nodemax);		
 		load.read_elements(elemin, elemax);	
 
@@ -148,22 +157,6 @@ struct MPIBinaryConfiguration
 		MPI_Breakdown::clear(savepath);
 		for(int i=1; i<17;i++)
 			MPI_Breakdown(elements, nodes, neqn, nnod, savepath, i);
-	}
-
-	/// Create the thermodynamic property structure
-	void add_thermo(po::variables_map am)
-	{
-		Thermo & thermo = Thermo::Instance();
-
-		thermo.setGamma(am["gamma"].as<double>());
-		thermo.Pr = am["Pr"].as<double>();
-		thermo.csuth = 110.0 / am["Tinf"].as<double>();
-		thermo.cmach = am["M"].as<double>();
-		thermo.Cv = 1. / thermo.gamma / (thermo.gamma - 1.0) / pow(thermo.cmach, 2);
-		thermo.cgas = 1.0 / 1.4 / pow(thermo.cmach, 2);
-		thermo.creyn = am["Re"].as<double>();
-		thermo.Twall = am["Twall"].as<double>();
-		thermo.adiabatic = am["Adiabatic"].as<bool>();
 	}
 
 	void read_mpi()

@@ -55,8 +55,15 @@ struct AsciiLoad
 		elements.resize( (int)(key.find("elements")->second) );
 
 		cout << "adding thermo" << endl;
-		// need to set up thermo before nodes
-		add_thermo();
+		
+		Thermo & thermo = Thermo::Instance();
+		thermo.set(key.find("gamma")->second,
+			key.find("M")->second,
+			key.find("Re")->second,
+			key.find("Pr")->second,
+			key.find("Tinf")->second,
+			key.find("Twall")->second,
+			(bool)(key.find("Adiabatic")->second));
 
 		// Load nodes, elements, faces. Add parameters for min and max. 
 		// Call MPIConfiguration prior to this and use parameters for our rank.
@@ -313,23 +320,6 @@ protected:
 			}
 		}
 	}
-
-		/// Create the thermodynamic property structure
-	void add_thermo()
-	{
-		Thermo & thermo = Thermo::Instance();
-
-		thermo.setGamma( key.find("gamma")->second);
-		thermo.Pr    = key.find("Pr")->second;
-		thermo.csuth = 110.0 / key.find("Tinf")->second;
-		thermo.cmach = key.find("M")->second;
-		thermo.Cv    = 1./thermo.gamma/(thermo.gamma-1.0)/pow(thermo.cmach, 2);
-		thermo.cgas  = 1.0/1.4/pow(thermo.cmach, 2);
-		thermo.creyn = key.find("Re")->second;
-		thermo.Twall = key.find("Twall")->second;
-		thermo.adiabatic = (bool)(key.find("Adiabatic")->second);
-	}
-
 
 	std::vector< Element * > & elements;
 	std::vector< Node *> & nodes;
