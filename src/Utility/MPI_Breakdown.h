@@ -18,6 +18,57 @@ struct MPI_Breakdown
 		ofstream fout((path + "//MPIBreakdown").c_str(),ios::out);
 		fout.close();
 	}
+	
+	// TEST
+	static void read(std::string path, int rank, int & size, int & nodemin, int & nodemax, int & elemin, int & elemax, int & nedgenode, int & nedgenode_left, int & max, int & node_iterator_min, int & node_iterator_max)
+	{
+		// still not as parallel as it could be but much better.
+		cout << "path: " << path << endl;
+		ifstream mbd((path + "//MPIBreakdown").c_str(), ios::in);
+		std::vector<int> data;
+		for (int i = 1; i <= 8; i++)		// temp hardcode, doesnt work except for 2?
+		{
+			std::string line;
+			getline(mbd, line);		// config #
+			cout << rank << " config: " << line << endl;
+			getline(mbd, line);		// description
+			cout << rank << " description: " << line << endl;
+			for (int j = 0; j < i; j++)	// read in breakdown points
+			{
+				getline(mbd, line);
+				cout << rank << " dat: " << line << endl;
+				data = split<int>(line, " ");
+
+				if (i == size && j == rank)
+				{
+					cout << "rank = " << rank << " using line: " << line << endl;
+					break;
+
+					cout << rank << " data: ";
+					for (unsigned int i = 0; i < data.size(); i++)
+						cout << data[i] << " ";
+					cout << endl;
+				}
+			}
+			if (i == size)
+				break;
+		}
+		mbd.close();
+
+		elemin = data[0];
+		elemax = data[1];
+
+		nodemin = data[2];
+		nodemax = data[3];
+
+		nedgenode = data[5];
+		nedgenode_left = data[4];
+		max = (data[7] - data[6]) + 1;
+
+		node_iterator_min = data[6];
+		node_iterator_max = data[7];
+	}
+	
 	std::vector<unsigned int> nodemin;
 	std::vector<unsigned int> nodemax;
 	std::vector<int> min;

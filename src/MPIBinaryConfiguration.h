@@ -84,7 +84,8 @@ struct MPIBinaryConfiguration
 
 		LoadBinaryData load(elements, nodes, path, nnod, neqn, ndim, nbnod);	// TODO move this into config						/// new binary method
 
-		read_mpi();
+		// read_mpi();
+		MPI_Breakdown::read(path, rank, size, nodemin, nodemax, elemin, elemax, nedgenode, nedgenode_left, max, node_iterator_min, node_iterator_max);
 
 		Thermo & thermo = Thermo::Instance();
 		thermo.set(am["gamma"].as<double>(),
@@ -158,7 +159,7 @@ struct MPIBinaryConfiguration
 		for(int i=1; i<17;i++)
 			MPI_Breakdown(elements, nodes, neqn, nnod, savepath, i);
 	}
-
+	/*
 	void read_mpi()
 	{
 		// still not as parallel as it could be but much better.
@@ -207,7 +208,7 @@ struct MPIBinaryConfiguration
 		node_iterator_min = data[6];
 		node_iterator_max = data[7];
 	}
-
+	*/
 	int size;
 	int offset;
 	int nedgenode;

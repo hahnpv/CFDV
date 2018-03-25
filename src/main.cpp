@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
 
 	Sensor * sensors = new Sensor(vm["path"].as<std::string>() + "//sensors", ndim, nodes);
 
-	// try to move FDV up here, N-S selector struct?
+	// Select equations to solve
 	NavierStokes * NS;
 	if (ndim == 1)
 		NS = new NavierStokes1D;
@@ -172,7 +172,7 @@ timer_l.start();
 
 		for_each(nodes.begin(), nodes.end(), NodeCheck<Node *>());								/// check for invalid nodal values
 
-		if (config->rank == 0)	sensors->update(iter);		// FIXME: this means rank 0 has all nodes!?
+		if (config->rank == 0)	sensors->update(iter);											// FIXME: this means rank 0 has all nodes!?
 
 		if (iter % 1000 == 0) config->Save(elements, nodes, iter);								// TODO add updated config files?
 
@@ -180,63 +180,7 @@ timer_l.start();
 
 		if (config->rank == 0) cout << "dt: " << dt << endl;
 
-		if (iter % 100 == 0 )
-			config->Output(elements, nodes, iter, t, true);					/// Tecplot output, deprecate for Save
-
-/*
-		// extrap consvar within elements for "6" BC
-		// 2D quad only FIXME does not work for tri
-		// FIXME TODO should be using test functions to get direction normal to face
-//		cout << "extrap" << endl;
-		for (int e = 0; e < elements.size(); e++)
-		{
-//			cout << "e = " << e << endl;
-			for (int n = 0; n < elements[e]->face.size(); n++)
-			{
-				if (elements[e]->face[n]->bc == 6)
-				{
-				//	cout << "found '6' BC in " << e << endl;
-					int n0 = elements[e]->face[n]->n(0);
-					int n1 = elements[e]->face[n]->n(1);
-
-					int bc0 = n0 - 1;
-					int bc1 = n1 + 1;
-
-					if (bc0 < 0)
-						bc0 = 3;
-
-					if (bc1 > 3)
-						bc0 = 0;
-
-
-				//	cout << "nodes / bcs: " << n0 << " " << n1 << " " << bc0 << " " << bc1 << endl;
-					for (int j = 0; j < neqn; j++)
-					{
-						elements[e]->node[ n0 ]->U( j) =  elements[e]->node[ bc0 ]->U( j);
-						elements[e]->node[ n1 ]->U( j) =  elements[e]->node[ bc1 ]->U( j);
-					}
-				//	cout << "done swapping consvar" << endl;
-				}
-			}
-		}
-*/
-		/*
-		if (ndim == 3)
-		{
-			FDVGalerkin<Element *, NavierStokes3D> fdv( nnod, neqn, ndim, nbnod, dt);
-			for_each(elements.begin(), elements.end(), ref(fdv));
-		}
-		else if (ndim == 2)
-		{
-			FDVGalerkin<Element *, NavierStokes2D> fdv( nnod, neqn, ndim, nbnod, dt);
-			for_each(elements.begin(), elements.end(), ref(fdv));
-		}
-		else if (ndim == 1)
-		{
-			FDVGalerkin<Element *, NavierStokes1D> fdv( nnod, neqn, ndim, nbnod, dt);
-			for_each(elements.begin(), elements.end(), ref(fdv));
-		}
-		*/
+		if (iter % 100 == 0 )	config->Output(elements, nodes, iter, t, true);					/// Tecplot output, deprecate for Save
 
 		FDVGalerkin<Element *> fdv(nnod, neqn, ndim, nbnod, dt, NS);
 		for_each(elements.begin(), elements.end(), ref(fdv));
@@ -248,9 +192,6 @@ timer_l.start();
 		}
 
 		for_each(elements.begin(), elements.end(), ApplyBC<Element *>(neqn, nnod, ndim, nbnod));			/// FIXME this doesn't work at all
-
-		// hax
-
 
 		config->gmres->iterate(elements);														/// Solve via GMRES
 		config->gmres->update(nodes);
