@@ -11,7 +11,6 @@ set(util_source_files
   Solvers/GMRES.h
   Solvers/GMRESbase.h
   Solvers/MPI_GMRES.h
-  split.h
   Tensor.h
   TensorMath.h
   TensorMPI.h
