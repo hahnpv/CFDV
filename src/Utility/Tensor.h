@@ -17,7 +17,7 @@ struct RefCnt
 		  kmax(lengthk), 
 		  lmax(lengthl)
 	{
-		size = imax + x*jmax + y*kmax + z*lmax;
+		size = imax + x*jmax + y*kmax + z*lmax;  // FIXME i dont think this is right? 4,4,0,0 yields 4+4*4=20? should be 16.
 		data = new T[size];
 		for (int i = 0; i < size; i++)
 			data[i] = 0;

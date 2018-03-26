@@ -250,38 +250,15 @@ struct LoadBinaryData
 		ifstream file(path.c_str());
 		while (!file.eof())
 		{
-			getline(file,input);
-//			add_adap( split<double>(input," \t") );
-			std::vector<double> data = split<double>(input, " \t");
-			add_adap( data);
+			int elno;
+			
+			file >> elno;
+			file >> elements[elno]->adap;
+			file >> elements[elno]->refine_level;
+
+			read(file, elements[elno]->Hnm);
 		}
 	};
-
-	void add_adap(std::vector<double> & data)
-	{
-		// 0 - element
-		// 1 - adap flag
-		// 2 - tensor data
-		if (data.size() == 0)
-			return;
-
-		int elno = (int)data[0];
-		bool adap = (bool)data[1];
-		int refine_level = (int)data[2];
-
-		elements[ elno ]->adap = adap;
-		elements[ elno ]->refine_level = refine_level;
-
-		std::string datastring = "double ";
-		for (unsigned int i = 4; i < data.size(); i++)			// this all is hackish, get working then fix.
-		{												// might make more sense to make a string ver. of read
-			datastring += to_string<double>(data[i]);	// and have the stream version call it once it stringsplits
-			datastring += " ";
-		}
-		std::istringstream is(datastring);
-
-		read( is, elements[ elno ]->Hnm);
-	}
 
 		/// Add a face to an element
 	void add_face(Element * e, int face, int bc)	// take a face line and apply to elems

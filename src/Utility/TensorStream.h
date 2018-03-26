@@ -112,78 +112,64 @@ std::ostream& write ( std::ostream& os, Tensor<T, ndim> & t )
 
 	os << ndim;
 
-	if (ndim > 0)
-		os << " " << t.imax();
-	if (ndim > 1)
-		os << " " << t.jmax();
-	if (ndim > 2)
-		os << " " << t.kmax();
-	if (ndim > 3)
-		os << " " << t.lmax();
+	int count = 0;
 
-	for (int i = 0; i < t.imax() * t.jmax() * t.kmax() * t.lmax() ; i++)
+	if (ndim > 0)
 	{
-		os << " " << t.data[i];
+		os << " " << t.imax();
+		count = t.imax();
+	}
+	if (ndim > 1)
+	{
+		os << " " << t.jmax();
+		count *= t.jmax();
+	}
+	if (ndim > 2)
+	{
+		os << " " << t.kmax();
+		count *= t.kmax();
+	}
+	if (ndim > 3)
+	{
+		os << " " << t.lmax();
+		count *= t.lmax();
+	}
+
+	for (int i = 0; i < count ; i++)
+	{
+		os << " " << t.ref->data[i];
 	}
 
 	os << endl;
 
-//	cin.get();
 	return os;
 }
 
 template<class T, int ndim>
-std::istream& read ( std::istream& os, Tensor<T, ndim> & t )
+std::istream& read ( std::istream& os, Tensor<T, ndim> & t ) 
 {
-	std::string line;
-	getline(os, line);
+	std::string type;
 
-	std::vector<std::string> data = split<std::string>(line, " ");
+	os >> type;
 
-	int count = 0;
+	int ndimi = 0;
 
-	std::string type = data[count++];
-/*
-	if (type == "double")
-	{
-		cout << "double" << endl;
-	}
-	else if (type == "bool")
-	{
-		cout << "bool" << endl;
-	}
-	else if (type == "int")
-	{
-		cout << "int" << endl;
-	}
-*/
-		// should be string_to<int> ?
-	int ndimi = string_to<int>(data[count++]);
+	os >> ndimi;
 
 	int imax = 1, jmax=1, kmax=1, lmax=1;
 	if (ndimi > 0)
-		imax = string_to<int>(data[count++]);
+		os >> imax;
 	if (ndimi > 1)
-		jmax = string_to<int>(data[count++]);
+		os >> jmax;
 	if (ndimi > 2)
-		kmax = string_to<int>(data[count++]);
+		os >> kmax;
 	if (ndimi > 3)
-		lmax = string_to<int>(data[count++]);
+		os >> lmax;
 
 	for (int i = 0; i < imax * jmax * kmax * lmax ; i++)
 	{
-		t.ref->data[i] = string_to<T>(data[count++]);
+		os >> t.ref->data[i];
 	}
 
-	// FORMAT:
-	// 1. Type
-	// 2. ndim
-	// 3. imax, jmax, kmax, lmax. Up to ndim
-	// 4. data read straight from data, not in any particular indice order
-
-	// lame but all I know to do as of right now
-	// or encode in Tensor class... can also typeid().name() but can get fugly
-
-//	cin.get();
 	return os;
 }

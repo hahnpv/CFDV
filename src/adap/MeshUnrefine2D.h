@@ -189,10 +189,10 @@ struct MeshUnrefine2D
 	{
 		std::sort(discard_node.begin(), discard_node.end(), sort_using_greater_than);
 		
-		for (int i=0; i < discard_node.size(); i++)
+		for (int i=0; i < discard_node.size(); i++)				// FIXME i think you need to work backwards
 		{
 			cout << "deleting node " << discard_node[i] << endl;
-			nodes.erase(nodes.begin()+discard_node[i], nodes.begin()+discard_node[i]+1);
+			nodes.erase(nodes.begin()+discard_node[i], nodes.begin()+discard_node[i]+1); 
 		}
 	}
 

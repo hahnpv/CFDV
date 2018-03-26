@@ -26,7 +26,7 @@ struct MPI_Breakdown
 		cout << "path: " << path << endl;
 		ifstream mbd((path + "//MPIBreakdown").c_str(), ios::in);
 		std::vector<int> data;
-		for (int i = 1; i <= 8; i++)		// temp hardcode, doesnt work except for 2?
+		for (int i = 1; i <= 16; i++)		// temp hardcode, doesnt work except for 2?
 		{
 			std::string line;
 			getline(mbd, line);		// config #

@@ -156,22 +156,12 @@ struct SaveBinaryData
 		boost::filesystem::ofstream adapfile(savepath + "adap");
 		for (int i = 0; i < nele; i++)		// get data from nodes
 		{
-			if (elements[i]->adap) // are adap flags being set???
+			if (elements[i]->adap)
 			{
-				// write file
-				// FIXME you have overloaded << for tensors...
 				adapfile << elements[i]->number << " "
 					<< elements[i]->adap << " "
-					<< elements[i]->refine_level << " "
-					<< "double "						// FIXME double probably was when i was thinking of converting to single
-					<< ndim << " "
-					<< nnod << " "
-					<< nnod << " ";
-				for (int j = 0; j < nnod*nnod; j++)
-				{
-					adapfile << elements[i]->Hnm(j) << " ";
-				}
-				adapfile << endl;
+					<< elements[i]->refine_level << " ";
+					write(adapfile, elements[i]->Hnm);
 			}
 		}
 		adapfile.close();
