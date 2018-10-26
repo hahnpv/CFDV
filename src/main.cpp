@@ -82,7 +82,7 @@ po::variables_map add_program_options(int argc, char * argv[])
 			<< "'Computational Fluid Dynamics, 2nd Ed.' and courses CFD I,II,III at " << endl
 			<< "The Univerisity of Alabama in Huntsville." << endl
 			<< endl
-			<< "phahn@blueorigin.com" << endl
+			<< "hahnpv@gmail.com" << endl
 			<< endl
 			<< "'You will never forget.' -Dr. Chung" << endl;
 	}
